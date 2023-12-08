@@ -2,7 +2,7 @@ __all__ = ["LessonRepository"]
 
 from typing import Optional
 
-from src.modules.lesson.schemas import ViewLesson, CreateLesson, CreateTask, ViewTask, UpdateLesson
+from src.modules.lesson.schemas import ViewLesson, CreateLesson, CreateTask, ViewTask, UpdateLesson, UpdateTask
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 from src.storages.sqlalchemy.models.lesson import Lesson, Task, TaskAssociation, TaskReward
 from src.storages.sqlalchemy.utils import *
@@ -119,7 +119,7 @@ class LessonRepository(SQLAlchemyRepository):
             if obj:
                 return ViewTask.model_validate(obj)
 
-    async def update_task(self, id_: int, data: CreateTask) -> ViewTask:
+    async def update_task(self, id_: int, data: UpdateTask) -> ViewTask:
         async with self._create_session() as session:
             q = (
                 update(Task)
@@ -149,6 +149,15 @@ class LessonRepository(SQLAlchemyRepository):
                 obj = await session.scalar(q)
             await session.commit()
             return ViewTask.model_validate(obj)
+
+    async def set_rewards_for_task(self, task_id: int, rewards: list[tuple[int, int]]):
+        async with self._create_session() as session:
+            q = delete(TaskReward).where(TaskReward.task_id == task_id)
+            await session.execute(q)
+            for i, (reward_id, count) in enumerate(rewards):
+                q = insert(TaskReward).values(task_id=task_id, reward_id=reward_id, count=count)
+                await session.execute(q)
+            await session.commit()
 
     async def set_rewards_for_task_by_aliases(self, alias: str, rewards: list[tuple[int, int]]):
         async with self._create_session() as session:
