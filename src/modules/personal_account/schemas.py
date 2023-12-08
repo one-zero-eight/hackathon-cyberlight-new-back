@@ -92,6 +92,18 @@ class ViewBattlePass(BaseModel):
     is_active: bool = Field(..., description="Is current battle pass active for users", examples=[True, False])
 
 
+class CreateBattlePass(BaseModel):
+    levels: Optional[list["ViewLevel"]] = Field(
+        default_factory=list, description="List of levels set to current battle pass"
+    )
+    is_active: bool = Field(..., description="Is current battle pass active for users", examples=[True, False])
+
+
+class CreatePersonalAccountBattlePasses(BaseModel):
+    battle_pass_id: int = Field(..., description="Battle Pass ID")
+    personal_account_id: int = Field(..., description="Personal Account ID")
+
+
 class ViewLevel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -103,6 +115,18 @@ class ViewLevel(BaseModel):
     rewards: Optional[list["ViewReward"]] = Field(
         default_factory=list, description="List of rewards for the reaching current level"
     )
+
+
+class CreateLevel(BaseModel):
+    experience: int = Field(
+        ..., description="Amount of experience needed to reach this level", examples=[100, 1000, 10000]
+    )
+    value: int = Field(..., description="Level value: the first, the second...", examples=[1, 2, 3, 4, 5])
+
+
+class CreateBattlePassLevel(BaseModel):
+    battle_pass_id: int = Field(..., description="Battle pass id")
+    level_id: int = Field(..., description="Level id")
 
 
 class BattlePassExperience(BaseModel):

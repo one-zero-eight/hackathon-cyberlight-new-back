@@ -22,6 +22,8 @@ if TYPE_CHECKING:
         PersonalAccountRepository,
         RewardRepository,
         AchievementRepository,
+        LevelRepository,
+        BattlePassRepository,
     )
     from src.modules.lesson.repository import LessonRepository
     from src.storages.sqlalchemy.storage import SQLAlchemyStorage
@@ -38,6 +40,8 @@ class Dependencies:
     _jinja2_env: "Environment"
     _smtp_repository: "SMTPRepository"
     _achievement_repository: "AchievementRepository"
+    _level_repository: "LevelRepository"
+    _battle_pass_repository: "BattlePassRepository"
 
     @classmethod
     def get_storage(cls) -> "SQLAlchemyStorage":
@@ -111,6 +115,22 @@ class Dependencies:
     def set_smtp_repository(cls, smtp_repository: "SMTPRepository"):
         cls._smtp_repository = smtp_repository
 
+    @classmethod
+    def get_level_repository(cls) -> "LevelRepository":
+        return cls._level_repository
+
+    @classmethod
+    def set_level_repository(cls, level_repository: "LevelRepository"):
+        cls._level_repository = level_repository
+
+    @classmethod
+    def get_battle_pass_repository(cls) -> "BattlePassRepository":
+        return cls._battle_pass_repository
+
+    @classmethod
+    def set_battle_pass_repository(cls, battle_pass_repository: "BattlePassRepository"):
+        cls._battle_pass_repository = battle_pass_repository
+
 
 DEPENDS = Depends(lambda: Dependencies)
 """It's a dependency injection container for FastAPI.
@@ -123,6 +143,8 @@ DEPENDS_REWARD_REPOSITORY = Depends(Dependencies.get_reward_repository)
 DEPENDS_LESSON_REPOSITORY = Depends(Dependencies.get_lesson_repository)
 DEPENDS_SMTP_REPOSITORY = Depends(Dependencies.get_smtp_repository)
 DEPENDS_ACHIEVEMENT_REPOSITORY = Depends(Dependencies.get_achievement_repository)
+DEPENDS_LEVEL_REPOSITORY = Depends(Dependencies.get_level_repository)
+DEPENDS_BATTLE_PASS_REPOSITORY = Depends(Dependencies.get_battle_pass_repository)
 
 from src.modules.auth.dependencies import verify_request  # noqa: E402
 

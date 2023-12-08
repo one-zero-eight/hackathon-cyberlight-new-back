@@ -8,11 +8,17 @@ from src.api.dependencies import (
     DEPENDS_PERSONAL_ACCOUNT_REPOSITORY,
     DEPENDS_REWARD_REPOSITORY,
     DEPENDS_ACHIEVEMENT_REPOSITORY,
+    DEPENDS_BATTLE_PASS_REPOSITORY,
 )
 from src.api.exceptions import IncorrectCredentialsException, NoCredentialsException
 from src.modules.auth.dependencies import verify_request
 from src.modules.auth.schemas import VerificationResult
-from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository, AchievementRepository
+from src.modules.personal_account.repository import (
+    PersonalAccountRepository,
+    RewardRepository,
+    AchievementRepository,
+    BattlePassRepository,
+)
 from src.modules.personal_account.schemas import (
     ViewPersonalAccount,
     ViewReward,
@@ -21,6 +27,9 @@ from src.modules.personal_account.schemas import (
     ViewAchievement,
     CreateAchievement,
     CreatePersonalAccountAchievement,
+    ViewLevel,
+    ViewBattlePass,
+    CreateBattlePass,
 )
 
 router = APIRouter(tags=["Personal Account"])
@@ -173,4 +182,71 @@ async def set_achievement_to_personal_account(
     obj: CreatePersonalAccountAchievement,
 ) -> None:
     await achievement_repository.set_to_personal_account(obj)
+    return {"success": True}
+
+
+@router.get(
+    "/battle-passes/",
+    responses={
+        200: {"description": "Get all battle-passes"},
+        **IncorrectCredentialsException.responses,
+        **NoCredentialsException.responses,
+    },
+)
+async def get_all_battle_passes(
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
+) -> list[ViewBattlePass]:
+    battle_passes = await battle_pass_repository.get_all()
+    return battle_passes
+
+
+@router.get(
+    "/battle-pass/{battle_pass_id}",
+    responses={
+        200: {"description": "Read battle pass by id"},
+        **IncorrectCredentialsException.responses,
+        **NoCredentialsException.responses,
+    },
+)
+async def read_battle_pass(
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
+    battle_pass_id: int,
+) -> ViewBattlePass:
+    battle_pass = await battle_pass_repository.read(battle_pass_id)
+    return battle_pass
+
+
+@router.post(
+    "/battle-pass/",
+    responses={
+        200: {"description": "Create battle-pass"},
+        **IncorrectCredentialsException.responses,
+        **NoCredentialsException.responses,
+    },
+)
+async def create_battle_pass(
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
+    obj: CreateBattlePass,
+) -> ViewLevel:
+    battle_pass = await battle_pass_repository.create(obj)
+    return battle_pass
+
+
+@router.post(
+    "/battle-pass/set-to-user",
+    responses={
+        200: {"description": "Set battle pass to user"},
+        **IncorrectCredentialsException.responses,
+        **NoCredentialsException.responses,
+    },
+)
+async def set_battle_pass_to_user(
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
+    obj: CreateBattlePass,
+) -> None:
+    await battle_pass_repository.set_to_user(obj)
     return {"success": True}

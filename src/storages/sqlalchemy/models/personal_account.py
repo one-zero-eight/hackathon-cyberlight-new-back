@@ -120,6 +120,7 @@ class LevelRewards(Base):
 
     level_id: Mapped[int] = mapped_column(ForeignKey(Level.id), primary_key=True)
     reward_id: Mapped[int] = mapped_column(ForeignKey(Reward.id), primary_key=True)
+    reward: Mapped["Reward"] = relationship("Reward", viewonly=True, lazy="joined")
 
 
 class PersonalAccountRewards(Base, IdMixin):

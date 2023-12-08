@@ -1,6 +1,20 @@
 from typing import Optional
 
 from src.modules.auth.schemas import VerificationResult
+
+from src.storages.sqlalchemy.models import (
+    PersonalAccount,
+    Reward,
+    PersonalAccountRewards,
+    Achievement,
+    PersonalAccountAchievements,
+    Level,
+    BattlePassLevels,
+    BattlePass,
+    PersonalAccountBattlePasses,
+)
+from src.storages.sqlalchemy.repository import SQLAlchemyRepository
+from src.storages.sqlalchemy.utils import *
 from src.modules.personal_account.schemas import (
     ViewPersonalAccount,
     ViewReward,
@@ -8,19 +22,16 @@ from src.modules.personal_account.schemas import (
     CreatePersonalAccountReward,
     ViewAchievement,
     CreateAchievement,
+    ViewLevel,
+    CreateLevel,
+    CreateBattlePassLevel,
+    ViewBattlePass,
+    CreateBattlePass,
+    CreatePersonalAccountBattlePasses,
     UpdateReward,
     UpdateAchievement,
     CreatePersonalAccountAchievement,
 )
-from src.storages.sqlalchemy.models import (
-    PersonalAccount,
-    Reward,
-    PersonalAccountRewards,
-    Achievement,
-    PersonalAccountAchievements,
-)
-from src.storages.sqlalchemy.repository import SQLAlchemyRepository
-from src.storages.sqlalchemy.utils import *
 
 
 class PersonalAccountRepository(SQLAlchemyRepository):
@@ -162,3 +173,65 @@ class AchievementRepository(SQLAlchemyRepository):
             objs = await session.scalars(q)
             if objs:
                 return [ViewAchievement.model_validate(obj) for obj in objs]
+
+
+class LevelRepository(SQLAlchemyRepository):
+    async def create(self, level_data: CreateLevel) -> ViewLevel:
+        async with self._create_session() as session:
+            obj = Level(**level_data.model_dump())
+            session.add(obj)
+            await session.commit()
+            q = select(Level).where(Level.id == obj.id)
+            level = await session.scalar(q)
+            return ViewLevel.model_validate(level)
+
+    async def read(self, _id: int) -> Optional[ViewLevel]:
+        async with self._create_session() as session:
+            q = select(Level).where(Level.id == _id)
+            obj = await session.scalar(q)
+            if obj:
+                return ViewLevel.model_validate(obj)
+
+    async def set_to_battle_pass(self, create_battle_pass_level: CreateBattlePassLevel) -> None:
+        async with self._create_session() as session:
+            q = insert(BattlePassLevels).values(create_battle_pass_level.model_dump())
+            await session.execute(q)
+            await session.commit()
+
+    async def get_all(self) -> list[ViewLevel]:
+        async with self._create_session() as session:
+            q = select(Level)
+            objs = await session.scalars(q)
+            if objs:
+                return [ViewLevel.model_validate(obj) for obj in objs]
+
+
+class BattlePassRepository(SQLAlchemyRepository):
+    async def create(self, battle_pass_data: CreateBattlePass) -> ViewBattlePass:
+        async with self._create_session() as session:
+            obj = BattlePass(**battle_pass_data.model_dump())
+            session.add(obj)
+            await session.commit()
+            q = select(BattlePass).where(BattlePass.id == obj.id)
+            battle_pass = await session.scalar(q)
+            return ViewBattlePass.model_validate(battle_pass)
+
+    async def read(self, _id: int) -> Optional[ViewBattlePass]:
+        async with self._create_session() as session:
+            q = select(BattlePass).where(BattlePass.id == _id)
+            obj = await session.scalar(q)
+            if obj:
+                return ViewBattlePass.model_validate(obj)
+
+    async def get_all(self) -> list[ViewBattlePass]:
+        async with self._create_session() as session:
+            q = select(BattlePass)
+            objs = await session.scalars(q)
+            if objs:
+                return [ViewBattlePass.model_validate(obj) for obj in objs]
+
+    async def set_to_user(self, create_personal_account_bp: CreatePersonalAccountBattlePasses) -> None:
+        async with self._create_session() as session:
+            pa_bp = PersonalAccountBattlePasses(**create_personal_account_bp.model_dump())
+            session.add(pa_bp)
+            await session.commit()
