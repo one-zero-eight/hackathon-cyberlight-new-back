@@ -2,7 +2,13 @@ from typing import Optional
 
 from src.api.exceptions import ObjectNotFound
 from src.modules.auth.schemas import VerificationResult
-from src.storages.sqlalchemy.models import PersonalAccount, Reward, PersonalAccountRewards
+from src.storages.sqlalchemy.models import (
+    PersonalAccount,
+    Reward,
+    PersonalAccountRewards,
+    Achievement,
+    PersonalAccountAchievements,
+)
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 from src.storages.sqlalchemy.utils import *
 from src.modules.personal_account.schemas import (
@@ -10,6 +16,8 @@ from src.modules.personal_account.schemas import (
     ViewReward,
     CreateReward,
     CreatePersonalAccountReward,
+    ViewAchievement,
+    CreateAchievement,
 )
 
 
@@ -56,3 +64,34 @@ class RewardRepository(SQLAlchemyRepository):
             q = insert(PersonalAccountRewards).values(create_personal_account_reward.model_dump())
             await session.execute(q)
             await session.commit()
+
+
+class AchievementRepository(SQLAlchemyRepository):
+    async def create(self, achievement_data: CreateAchievement) -> ViewAchievement:
+        async with self._create_session() as session:
+            achievement = Achievement(**achievement_data.model_dump())
+            session.add(achievement)
+            await session.commit()
+            return ViewAchievement.model_validate(achievement)
+
+    async def read(self, _id: int) -> Optional[ViewAchievement]:
+        async with self._create_session() as session:
+            q = select(Achievement).where(Achievement.id == _id)
+            obj = await session.scalar(q)
+            if obj:
+                return ViewAchievement.model_validate(obj)
+            raise ObjectNotFound()
+
+    async def set_to_personal_account(self, create_personal_account_achievement: CreatePersonalAccountReward) -> None:
+        async with self._create_session() as session:
+            q = insert(PersonalAccountAchievements).values(create_personal_account_achievement.model_dump())
+            await session.execute(q)
+            await session.commit()
+
+    async def get_all(self) -> list[ViewAchievement]:
+        async with self._create_session() as session:
+            q = select(Achievement)
+            objs = await session.scalars(q)
+            if objs:
+                return [ViewAchievement.model_validate(obj) for obj in objs]
+            raise ObjectNotFound()

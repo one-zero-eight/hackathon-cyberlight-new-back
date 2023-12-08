@@ -14,7 +14,7 @@ from src.modules.lesson.repository import LessonRepository
 from src.modules.lesson.schemas import CreateLesson
 from src.modules.smtp.repository import SMTPRepository
 from src.modules.user.repository import UserRepository
-from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository
+from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository, AchievementRepository
 from src.storages.predefined.lessons import PredefinedLessons
 
 from src.storages.sqlalchemy.storage import SQLAlchemyStorage
@@ -33,12 +33,14 @@ async def setup_repositories():
         autoescape=True,
     )
     smtp_repository = SMTPRepository()
+    achievement_repository = AchievementRepository(storage)
 
     Dependencies.set_auth_repository(auth_repository)
     Dependencies.set_storage(storage)
     Dependencies.set_user_repository(user_repository)
     Dependencies.set_personal_account_repository(personal_account_repository)
     Dependencies.set_lesson_repository(lesson_repository)
+    Dependencies.set_achievement_repository(achievement_repository)
     Dependencies.set_reward_repository(reward_repository)
     Dependencies.set_jinja2_env(jinja2_env)
     Dependencies.set_smtp_repository(smtp_repository)

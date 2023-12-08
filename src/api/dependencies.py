@@ -18,7 +18,11 @@ from jinja2 import Environment
 if TYPE_CHECKING:
     from src.modules.user.repository import UserRepository
     from src.modules.auth.repository import AuthRepository
-    from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository
+    from src.modules.personal_account.repository import (
+        PersonalAccountRepository,
+        RewardRepository,
+        AchievementRepository,
+    )
     from src.modules.lesson.repository import LessonRepository
     from src.storages.sqlalchemy.storage import SQLAlchemyStorage
     from src.modules.smtp.repository import SMTPRepository
@@ -33,6 +37,7 @@ class Dependencies:
     _lesson_repository: "LessonRepository"
     _jinja2_env: "Environment"
     _smtp_repository: "SMTPRepository"
+    _achievement_repository: "AchievementRepository"
 
     @classmethod
     def get_storage(cls) -> "SQLAlchemyStorage":
@@ -83,6 +88,14 @@ class Dependencies:
         cls._lesson_repository = lesson_repository
 
     @classmethod
+    def get_achievement_repository(cls) -> "AchievementRepository":
+        return cls._achievement_repository
+
+    @classmethod
+    def set_achievement_repository(cls, achievement_repository: "AchievementRepository"):
+        cls._achievement_repository = achievement_repository
+
+    @classmethod
     def get_jinja2_env(cls) -> "Environment":
         return cls._jinja2_env
 
@@ -109,6 +122,7 @@ DEPENDS_PERSONAL_ACCOUNT_REPOSITORY = Depends(Dependencies.get_personal_account_
 DEPENDS_REWARD_REPOSITORY = Depends(Dependencies.get_reward_repository)
 DEPENDS_LESSON_REPOSITORY = Depends(Dependencies.get_lesson_repository)
 DEPENDS_SMTP_REPOSITORY = Depends(Dependencies.get_smtp_repository)
+DEPENDS_ACHIEVEMENT_REPOSITORY = Depends(Dependencies.get_achievement_repository)
 
 from src.modules.auth.dependencies import verify_request  # noqa: E402
 

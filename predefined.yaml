@@ -132,3 +132,22 @@ tasks:
       - г) Это процесс защиты данных от потери
     correct_choices:
       - 3
+rewards:
+  - id: 100000001
+    name: Промокод на скидку от Skillbox
+    content: 8ASCFNJAS7123LDA
+    type: default
+    image: static/images/reward_images/reward_image_100000001.png
+    icon: static/images/reward_icons/reward_icon_100000001.png
+  - id: 100000002
+    name: Промокод на скидку от Stepik
+    content: 8ASCFNDDDDA
+    type: default
+    image: static/images/reward_images/reward_image_100000002.png
+    icon: static/images/reward_icons/reward_icon_100000002.png
+  - id: 100000003
+    name: Худи от Кибер.База
+    content: TYTYA12
+    type: default
+    image: static/images/reward_images/reward_image_100000003.png
+    icon: static/images/reward_icons/reward_icon_100000003.png

@@ -61,6 +61,22 @@ class ViewAchievement(BaseModel):
     )
 
 
+class CreateAchievement(BaseModel):
+    name: str = Field(..., description="Achievement name (title)", examples=["Анонимус"])
+    description: str = Field(..., description="Reward description", examples=["Не дал узнать о себе"])
+    image: Optional[str] = Field(
+        default="", description="Image path", examples=["static/images/achievement_images/achievement_image.png"]
+    )
+    icon: Optional[str] = Field(
+        default="", description="Icon path", examples=["static/images/achievement_icons/achievement_icon.png"]
+    )
+
+
+class CreatePersonalAccountAchievement(BaseModel):
+    achievement_id: int = Field(..., description="Achievement obj id", examples=[0, 1, 3])
+    personal_account_id: int = Field(..., description="Personal account obj id", examples=[1, 2, 3])
+
+
 class ViewBattlePass(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
