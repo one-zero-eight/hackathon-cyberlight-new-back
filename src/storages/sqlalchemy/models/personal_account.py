@@ -109,7 +109,6 @@ class Reward(Base, IdMixin):
     content: Mapped[str] = mapped_column(nullable=False)
     type: Mapped[RewardType] = mapped_column(nullable=False, default=RewardType.NONE)
     image: Mapped[str] = mapped_column(nullable=True)
-    icon: Mapped[str] = mapped_column(nullable=True)
 
 
 class LevelRewards(Base):
@@ -145,7 +144,6 @@ class Achievement(Base, IdMixin):
     name: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
     image: Mapped[str] = mapped_column(nullable=True)
-    icon: Mapped[str] = mapped_column(nullable=True)
 
 
 class PersonalAccountAchievements(Base):

@@ -25,9 +25,6 @@ class ViewReward(BaseModel):
     image: Optional[str] = Field(
         default="", description="Image path", examples=["static/images/reward_images/reward_image.png"]
     )
-    icon: Optional[str] = Field(
-        default="", description="Icon path", examples=["static/images/reward_icons/reward_icon.png"]
-    )
 
 
 class CreateReward(BaseModel):
@@ -36,9 +33,6 @@ class CreateReward(BaseModel):
     type: "RewardType" = Field(..., description="Type of reward", examples=["default"])
     image: Optional[str] = Field(
         default="", description="Image path", examples=["static/images/reward_images/reward_image.png"]
-    )
-    icon: Optional[str] = Field(
-        default="", description="Icon path", examples=["static/images/reward_icons/reward_icon.png"]
     )
 
 
@@ -65,9 +59,6 @@ class ViewAchievement(BaseModel):
     image: Optional[str] = Field(
         default="", description="Image path", examples=["static/images/achievement_images/achievement_image.png"]
     )
-    icon: Optional[str] = Field(
-        default="", description="Icon path", examples=["static/images/achievement_icons/achievement_icon.png"]
-    )
 
 
 class CreateAchievement(BaseModel):
@@ -75,9 +66,6 @@ class CreateAchievement(BaseModel):
     description: str = Field(..., description="Reward description", examples=["Не дал узнать о себе"])
     image: Optional[str] = Field(
         default="", description="Image path", examples=["static/images/achievement_images/achievement_image.png"]
-    )
-    icon: Optional[str] = Field(
-        default="", description="Icon path", examples=["static/images/achievement_icons/achievement_icon.png"]
     )
 
 
