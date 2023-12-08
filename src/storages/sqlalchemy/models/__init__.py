@@ -13,12 +13,13 @@ from src.storages.sqlalchemy.models.personal_account import (
     PersonalAccountRewards,
     BattlePassLevels,
 )
-from src.storages.sqlalchemy.models.users import User
+from src.storages.sqlalchemy.models.users import User, UserTaskAnswer
 from src.storages.sqlalchemy.models.lesson import Lesson, Task, TaskAssociation, StepType
 
 __all__ = [
     "Base",
     "User",
+    "UserTaskAnswer",
     "PersonalAccount",
     "BattlePass",
     "LevelRewards",

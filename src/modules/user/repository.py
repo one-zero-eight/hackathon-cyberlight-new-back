@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import Dependencies
 from src.modules.user.schemas import ViewUser, CreateUser
-from src.storages.sqlalchemy.models.users import User
+from src.storages.sqlalchemy.models.users import User, UserTaskAnswer
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 
 MIN_USER_ID = 100_000
@@ -84,4 +84,15 @@ class UserRepository(SQLAlchemyRepository):
             user = await session.scalar(q)
             if user:
                 return ViewUser.model_validate(user, from_attributes=True)
+
     # ^^^^^^^^^^^^^^^^^^^ CRUD ^^^^^^^^^^^^^^^^^^^ #
+
+    async def submit_answer_for_task(self, user_id: int, lesson_id: int, task_id: int, is_correct: bool) -> None:
+        async with self._create_session() as session:
+            q = (
+                insert(UserTaskAnswer)
+                .values(user_id=user_id, lesson_id=lesson_id, task_id=task_id, is_correct=is_correct)
+                .returning(UserTaskAnswer)
+            )
+            await session.execute(q)
+            await session.commit()

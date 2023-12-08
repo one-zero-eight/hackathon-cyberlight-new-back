@@ -6,7 +6,7 @@ from src.modules.personal_account.schemas import ViewReward
 from src.storages.sqlalchemy.models.lesson import StepType
 
 
-class Answer(BaseModel):
+class TaskAnswer(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     lesson_id: int = Field(..., description="ID of the lesson")
@@ -33,8 +33,8 @@ class ViewTask(BaseModel):
     reward: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
     rewards_associations: Optional[list["RewardAssociation"]] = Field(default_factory=list)
 
-    def check_answer(self, answer: Optional[list[str]]) -> bool:
-        if self.type == StepType.input:
+    def check_answer(self, answer: Optional[str | list[str]]) -> bool:
+        if self.type == StepType.input and isinstance(answer, str):
             return answer in self.input_answers
         elif self.type == StepType.instant:
             return answer == self.correct_choices

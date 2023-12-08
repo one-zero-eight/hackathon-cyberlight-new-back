@@ -3,27 +3,65 @@ __all__ = ["router"]
 from typing import Annotated
 
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from src.api.dependencies import DEPENDS_LESSON_REPOSITORY, DEPENDS_VERIFIED_REQUEST
+from src.api.dependencies import (
+    DEPENDS_LESSON_REPOSITORY,
+    DEPENDS_VERIFIED_REQUEST,
+    DEPENDS_USER_REPOSITORY,
+    DEPENDS_REWARD_REPOSITORY,
+)
 from src.api.exceptions import ObjectNotFound
 from src.modules.auth.schemas import VerificationResult
 from src.modules.lesson.repository import LessonRepository
-from src.modules.lesson.schemas import ViewLesson, CreateLesson, Answer, ViewTask, CreateTask, UpdateLesson, UpdateTask
+from src.modules.lesson.schemas import (
+    ViewLesson,
+    CreateLesson,
+    TaskAnswer,
+    ViewTask,
+    CreateTask,
+    UpdateLesson,
+    UpdateTask,
+)
+from src.modules.personal_account.repository import RewardRepository
+from src.modules.user.repository import UserRepository
 
 router = APIRouter(prefix="/lessons", tags=["Lesson"])
 
 
 class TaskSolveResult(BaseModel):
     success: bool
-    rewards: list[int]
+    rewards: list[int] = Field(default_factory=list)
 
 
 @router.post("/solve")
 async def solve(
-    answer: Answer, verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST]
+    answer: TaskAnswer,
+    verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    reward_repository: Annotated[RewardRepository, DEPENDS_REWARD_REPOSITORY],
+    task_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
 ) -> TaskSolveResult:
-    raise NotImplementedError()
+    task = await task_repository.read_task(answer.task_id)
+
+    if task is None:
+        raise ObjectNotFound()
+    if task.type == "input":
+        success = task.check_answer(answer.input_answer)
+    else:
+        success = task.check_answer(answer.choices)
+
+    await user_repository.submit_answer_for_task(
+        user_id=verification.user_id, lesson_id=answer.lesson_id, task_id=answer.task_id, is_correct=success
+    )
+
+    if success and task.rewards_associations:
+        await reward_repository.add_rewards_to_personal_account(
+            verification.user_id, [(r.reward.id, r.count) for r in task.rewards_associations]
+        )
+        return TaskSolveResult(success=success, rewards=[r.reward.id for r in task.rewards_associations])
+    else:
+        return TaskSolveResult(success=success)
 
 
 # ----------------- Lesson -----------------

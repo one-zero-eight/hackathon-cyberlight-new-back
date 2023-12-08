@@ -68,7 +68,7 @@ class RewardRepository(SQLAlchemyRepository):
             if objs:
                 return [ViewReward.model_validate(obj) for obj in objs]
 
-    async def set_to_personal_account(self, create_personal_account_reward: CreatePersonalAccountReward) -> None:
+    async def add_to_personal_account(self, create_personal_account_reward: CreatePersonalAccountReward) -> None:
         async with self._create_session() as session:
             q = (
                 select(PersonalAccountRewards)
@@ -83,6 +83,28 @@ class RewardRepository(SQLAlchemyRepository):
                 q = insert(PersonalAccountRewards).values(create_personal_account_reward.model_dump())
                 await session.execute(q)
             await session.commit()
+
+    async def add_rewards_to_personal_account(self, user_id: int, rewards: list[tuple[int, int]]) -> None:
+        async with self._create_session() as session:
+            q = select(PersonalAccount).where(PersonalAccount.user_id == user_id)
+            personal_account = await session.scalar(q)
+            if personal_account:
+                for reward_id, count in rewards:
+                    q = (
+                        select(PersonalAccountRewards)
+                        .where(PersonalAccountRewards.reward_id == reward_id)
+                        .where(PersonalAccountRewards.personal_account_id == personal_account.user_id)
+                    )
+                    result = await session.scalar(q)
+                    if result:
+                        result.count += count
+                        session.add(result)
+                    else:
+                        q = insert(PersonalAccountRewards).values(
+                            reward_id=reward_id, personal_account_id=personal_account.user_id, count=count
+                        )
+                        await session.execute(q)
+                await session.commit()
 
 
 class AchievementRepository(SQLAlchemyRepository):

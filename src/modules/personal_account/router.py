@@ -104,8 +104,8 @@ async def set_reward_to_personal_account(
     verification: Annotated[VerificationResult, Depends(verify_request)],
     reward_repository: Annotated[RewardRepository, DEPENDS_REWARD_REPOSITORY],
     obj: CreatePersonalAccountReward,
-) -> None:
-    await reward_repository.set_to_personal_account(obj)
+):
+    await reward_repository.add_to_personal_account(obj)
     return {"success": True}
 
 
