@@ -17,27 +17,7 @@ class Answer(BaseModel):
 
 
 class ViewTask(BaseModel):
-    model_config = ConfigDict(
-        from_attributes=True,
-        json_schema_extra={
-            "example": dict(
-                id=1,
-                content="""Что покажет приведенный ниже фрагмент кода?
-        ```python
-        total = 0
-        for i in range(1, 6):
-            total += i
-            print(total, end="")
-        ```                 
-        """,
-                type="input",
-                choices=None,
-                correct_choices=None,
-                input_answers=["1361015"],
-                reward=10,
-            )
-        },
-    )
+    model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., description="ID of the task")
     alias: str = Field(..., description="Alias of the task")
@@ -69,7 +49,6 @@ class ViewTask(BaseModel):
 class RewardAssociation(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    task_id: int = Field(..., description="ID of the task")
     reward: ViewReward = Field(..., description="ID of the reward")
     count: int = Field(..., description="Count of the reward")
 
@@ -107,6 +86,7 @@ class ViewLesson(BaseModel):
     id: int = Field(..., description="ID of the lesson", examples=[1])
     alias: str = Field(..., description="Alias of the lesson", examples=["lesson"])
     title: Optional[str] = Field("", description="Title of the lesson")
+    content: str = Field(..., description="Content of the lesson")
     difficulty: int = Field(..., description="Difficulty of the lesson", gt=-1, lt=10, examples=[5])
     tasks: list["ViewTask"] = Field(..., description="Tasks of the lesson (sorted by order)")
 

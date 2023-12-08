@@ -42,6 +42,15 @@ class CreateReward(BaseModel):
     )
 
 
+class UpdateReward(BaseModel):
+    name: Optional[str] = Field(None, description="Reward name (title)", examples=["Промокод на скидку от партнеров"])
+    content: Optional[str] = Field(None, description="Reward content (useful thing)", examples=["ADASD!#412V"])
+    type: Optional["RewardType"] = Field(None, description="Type of reward", examples=["default"])
+    image: Optional[str] = Field(
+        None, description="Image path", examples=["static/images/reward_images/reward_image.png"]
+    )
+
+
 class CreatePersonalAccountReward(BaseModel):
     reward_id: int = Field(..., description="Reward obj id", examples=[0, 1, 3])
     personal_account_id: int = Field(..., description="Personal account obj id", examples=[1, 2, 3])

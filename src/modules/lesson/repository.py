@@ -4,7 +4,7 @@ from typing import Optional
 
 from src.modules.lesson.schemas import ViewLesson, CreateLesson, CreateTask, ViewTask, UpdateLesson
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
-from src.storages.sqlalchemy.models.lesson import Lesson, Task, TaskAssociation
+from src.storages.sqlalchemy.models.lesson import Lesson, Task, TaskAssociation, TaskReward
 from src.storages.sqlalchemy.utils import *
 
 
@@ -149,3 +149,16 @@ class LessonRepository(SQLAlchemyRepository):
                 obj = await session.scalar(q)
             await session.commit()
             return ViewTask.model_validate(obj)
+
+    async def set_rewards_for_task_by_aliases(self, alias: str, rewards: list[tuple[int, int]]):
+        async with self._create_session() as session:
+            q = select(Task).where(Task.alias == alias)
+            task = await session.scalar(q)
+            if not task:
+                return
+            q = delete(TaskReward).where(TaskReward.task_id == task.id)
+            await session.execute(q)
+            for i, (reward_id, count) in enumerate(rewards):
+                q = insert(TaskReward).values(task_id=task.id, reward_id=reward_id, count=count)
+                await session.execute(q)
+            await session.commit()

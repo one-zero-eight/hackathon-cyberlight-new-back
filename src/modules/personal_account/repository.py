@@ -1,7 +1,15 @@
 from typing import Optional
 
-from src.api.exceptions import ObjectNotFound
 from src.modules.auth.schemas import VerificationResult
+from src.modules.personal_account.schemas import (
+    ViewPersonalAccount,
+    ViewReward,
+    CreateReward,
+    CreatePersonalAccountReward,
+    ViewAchievement,
+    CreateAchievement,
+    UpdateReward,
+)
 from src.storages.sqlalchemy.models import (
     PersonalAccount,
     Reward,
@@ -11,14 +19,6 @@ from src.storages.sqlalchemy.models import (
 )
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 from src.storages.sqlalchemy.utils import *
-from src.modules.personal_account.schemas import (
-    ViewPersonalAccount,
-    ViewReward,
-    CreateReward,
-    CreatePersonalAccountReward,
-    ViewAchievement,
-    CreateAchievement,
-)
 
 
 class PersonalAccountRepository(SQLAlchemyRepository):
@@ -32,7 +32,6 @@ class PersonalAccountRepository(SQLAlchemyRepository):
             obj = await session.scalar(q)
             if obj:
                 return ViewPersonalAccount.model_validate(obj)
-            raise ObjectNotFound()
 
 
 class RewardRepository(SQLAlchemyRepository):
@@ -49,7 +48,18 @@ class RewardRepository(SQLAlchemyRepository):
             obj = await session.scalar(q)
             if obj:
                 return ViewReward.model_validate(obj)
-            raise ObjectNotFound()
+
+    async def update(self, _id, reward_data: UpdateReward) -> ViewReward:
+        async with self._create_session() as session:
+            q = (
+                update(Reward)
+                .where(Reward.id == _id)
+                .values(reward_data.model_dump(exclude_none=True, exclude_unset=True))
+                .returning(Reward)
+            )
+            obj = await session.scalar(q)
+            await session.commit()
+            return ViewReward.model_validate(obj)
 
     async def get_all(self) -> list[ViewReward]:
         async with self._create_session() as session:
@@ -57,7 +67,6 @@ class RewardRepository(SQLAlchemyRepository):
             objs = await session.scalars(q)
             if objs:
                 return [ViewReward.model_validate(obj) for obj in objs]
-            raise ObjectNotFound()
 
     async def set_to_personal_account(self, create_personal_account_reward: CreatePersonalAccountReward) -> None:
         async with self._create_session() as session:
@@ -90,7 +99,6 @@ class AchievementRepository(SQLAlchemyRepository):
             obj = await session.scalar(q)
             if obj:
                 return ViewAchievement.model_validate(obj)
-            raise ObjectNotFound()
 
     async def set_to_personal_account(self, create_personal_account_achievement: CreatePersonalAccountReward) -> None:
         async with self._create_session() as session:
@@ -104,4 +112,3 @@ class AchievementRepository(SQLAlchemyRepository):
             objs = await session.scalars(q)
             if objs:
                 return [ViewAchievement.model_validate(obj) for obj in objs]
-            raise ObjectNotFound()

@@ -27,6 +27,58 @@ $defs:
     - difficulty
     title: Lesson
     type: object
+  Reward:
+    properties:
+      id:
+        title: Id
+        type: integer
+      type:
+        allOf:
+        - $ref: '#/$defs/RewardType'
+        default: none
+        description: Type of the reward
+      name:
+        title: Name
+        type: string
+      content:
+        title: Content
+        type: string
+      image:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        description: Image of the reward
+        title: Image
+    required:
+    - id
+    - name
+    - content
+    title: Reward
+    type: object
+  RewardEntry:
+    properties:
+      reward_id:
+        description: ID of the reward
+        title: Reward Id
+        type: integer
+      count:
+        default: 1
+        description: Count of the reward
+        title: Count
+        type: integer
+    required:
+    - reward_id
+    title: RewardEntry
+    type: object
+  RewardType:
+    description: "\u0422\u0438\u043F\u044B \u043D\u0430\u0433\u0440\u0430\u0434"
+    enum:
+    - none
+    - xp
+    - item
+    title: RewardType
+    type: string
   StepType:
     enum:
     - empty
@@ -91,6 +143,14 @@ $defs:
         default: 0
         description: Reward for the task (in xp points)
         title: Reward
+      rewards:
+        anyOf:
+        - items:
+            $ref: '#/$defs/RewardEntry'
+          type: array
+        - type: 'null'
+        description: List of reward ids for the task
+        title: Rewards
     required:
     - alias
     - type
@@ -114,5 +174,13 @@ properties:
     - type: 'null'
     description: List of predefined tasks
     title: Tasks
+  rewards:
+    anyOf:
+    - items:
+        $ref: '#/$defs/Reward'
+      type: array
+    - type: 'null'
+    description: List of predefined rewards
+    title: Rewards
 title: PredefinedLessons
 type: object

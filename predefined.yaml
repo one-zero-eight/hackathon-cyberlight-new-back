@@ -1,7 +1,7 @@
 $schema: "./predefined.schema.yaml"
 lessons:
-  - alias: lesson1
-    title: Quiz Lesson
+  - alias: welcome
+    title: Добро пожаловать!
     content: |
       В этом уроке вы узнаете, какие меры безопасности следует соблюдать при работе с компьютером и интернетом.
     difficulty: 0
@@ -29,7 +29,9 @@ tasks:
       - г) Перешлю письмо другу, чтобы он проверил ссылку
     correct_choices:
       - 1
-    rewards: [100000001, 100000002]
+    rewards:
+      - reward_id: 100000001
+      - reward_id: 100000002
   - alias: task2
     type: radio
     content: |

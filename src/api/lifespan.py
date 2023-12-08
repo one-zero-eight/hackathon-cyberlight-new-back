@@ -12,6 +12,7 @@ from src.config_schema import Environment
 from src.modules.auth.repository import AuthRepository
 from src.modules.lesson.repository import LessonRepository
 from src.modules.lesson.schemas import CreateLesson, CreateTask
+from src.modules.personal_account.schemas import UpdateReward
 from src.modules.smtp.repository import SMTPRepository
 from src.modules.user.repository import UserRepository
 from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository, AchievementRepository
@@ -68,12 +69,22 @@ async def setup_predefined():
 
     predefined: PredefinedLessons = PredefinedLessons.from_yaml(Path("predefined.yaml"))
     lesson_repository = Dependencies.get_lesson_repository()
-    for lesson in predefined.lessons:
-        await lesson_repository.upsert_lesson(CreateLesson.model_validate(lesson, from_attributes=True))
+    reward_repository = Dependencies.get_reward_repository()
+    for reward in predefined.rewards:
+        db_reward = await reward_repository.read(reward.id)
+        if not db_reward:
+            await reward_repository.create(reward)
+        else:
+            await reward_repository.update(reward.id, UpdateReward.model_validate(reward, from_attributes=True))
+
     for task in predefined.tasks:
         await lesson_repository.upsert_task(CreateTask.model_validate(task, from_attributes=True))
+        await lesson_repository.set_rewards_for_task_by_aliases(
+            task.alias, [(entry.reward_id, entry.count) for entry in task.rewards]
+        )
 
     for lesson in predefined.lessons:
+        await lesson_repository.upsert_lesson(CreateLesson.model_validate(lesson, from_attributes=True))
         await lesson_repository.set_tasks_for_lesson_by_aliases(
             lesson.alias, [task_alias for task_alias in lesson.tasks]
         )

@@ -21,10 +21,13 @@ class Reward(BaseModel):
     name: str
     content: str
     image: Optional[str] = Field(default=None, description="Image of the reward")
-    price: Optional[int] = Field(None, description="Price of the reward in points")
 
 
 class Task(BaseModel):
+    class RewardEntry(BaseModel):
+        reward_id: int = Field(..., description="ID of the reward")
+        count: int = Field(1, description="Count of the reward")
+
     alias: str = Field(..., description="Alias of the task")
     type: StepType = Field(..., description="Type of the task, need for rendering and validation")
 
@@ -37,7 +40,7 @@ class Task(BaseModel):
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
     reward: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
-    rewards: Optional[list[int]] = Field(default_factory=list, description="List of rewards for the task")
+    rewards: Optional[list[RewardEntry]] = Field(default_factory=list, description="List of reward ids for the task")
 
 
 class PredefinedLessons(BaseModel):
