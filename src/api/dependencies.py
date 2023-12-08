@@ -16,6 +16,7 @@ __all__ = [
     "DEPENDS_VERIFIED_REQUEST",
     "DEPENDS_AUTH_REPOSITORY",
     "DEPENDS_PERSONAL_ACCOUNT_REPOSITORY",
+    "DEPENDS_LESSON_REPOSITORY",
     "Dependencies",
 ]
 
@@ -27,6 +28,8 @@ if TYPE_CHECKING:
     from src.modules.user.repository import UserRepository
     from src.modules.auth.repository import AuthRepository
     from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository
+    from src.modules.personal_account.repository import PersonalAccountRepository
+    from src.modules.lesson.repository import LessonRepository
     from src.storages.sqlalchemy.storage import SQLAlchemyStorage
 
 
@@ -77,6 +80,14 @@ class Dependencies:
     def set_personal_account_repository(cls, personal_account_repository: "PersonalAccountRepository"):
         cls._personal_account_repository = personal_account_repository
 
+    @classmethod
+    def get_lesson_repository(cls) -> "LessonRepository":
+        return cls._lesson_repository
+
+    @classmethod
+    def set_lesson_repository(cls, lesson_repository: "LessonRepository"):
+        cls._lesson_repository = lesson_repository
+
 
 DEPENDS = Depends(lambda: Dependencies)
 """It's a dependency injection container for FastAPI.
@@ -86,6 +97,7 @@ DEPENDS_USER_REPOSITORY = Depends(Dependencies.get_user_repository)
 DEPENDS_AUTH_REPOSITORY = Depends(Dependencies.get_auth_repository)
 DEPENDS_PERSONAL_ACCOUNT_REPOSITORY = Depends(Dependencies.get_personal_account_repository)
 DEPENDS_REWARD_REPOSITORY = Depends(Dependencies.get_reward_repository)
+DEPENDS_LESSON_REPOSITORY = Depends(Dependencies.get_lesson_repository)
 
 from src.modules.auth.dependencies import verify_request  # noqa: E402
 

@@ -1,0 +1,118 @@
+$schema: http://json-schema.org/draft-07/schema#
+$defs:
+  Lesson:
+    properties:
+      alias:
+        title: Alias
+        type: string
+      title:
+        title: Title
+        type: string
+      content:
+        title: Content
+        type: string
+      difficulty:
+        title: Difficulty
+        type: integer
+      tasks:
+        description: List of tasks aliases
+        items:
+          type: string
+        title: Tasks
+        type: array
+    required:
+    - alias
+    - title
+    - content
+    - difficulty
+    title: Lesson
+    type: object
+  StepType:
+    enum:
+    - empty
+    - instant
+    - radio
+    - multichoice
+    - input
+    title: StepType
+    type: string
+  Task:
+    properties:
+      alias:
+        description: Alias of the task
+        title: Alias
+        type: string
+      type:
+        allOf:
+        - $ref: '#/$defs/StepType'
+        description: Type of the task, need for rendering and validation
+      content:
+        description: Content of the task
+        title: Content
+        type: string
+      title:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: ''
+        description: Title of the task
+        title: Title
+      choices:
+        anyOf:
+        - items:
+            type: string
+          type: array
+        - type: 'null'
+        default: null
+        description: Choices for multichoice, radio, instant tasks
+        title: Choices
+      correct_choices:
+        anyOf:
+        - items:
+            type: integer
+          type: array
+        - type: 'null'
+        default: null
+        description: Correct choices for multichoice, instant, radio tasks
+        title: Correct Choices
+      input_answers:
+        anyOf:
+        - items:
+            type: string
+          type: array
+        - type: 'null'
+        default: null
+        description: Answer for input task (synonyms)
+        title: Input Answers
+      reward:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: 0
+        description: Reward for the task (in xp points)
+        title: Reward
+    required:
+    - alias
+    - type
+    - content
+    title: Task
+    type: object
+properties:
+  lessons:
+    anyOf:
+    - items:
+        $ref: '#/$defs/Lesson'
+      type: array
+    - type: 'null'
+    description: List of predefined lessons
+    title: Lessons
+  tasks:
+    anyOf:
+    - items:
+        $ref: '#/$defs/Task'
+      type: array
+    - type: 'null'
+    description: List of predefined tasks
+    title: Tasks
+title: PredefinedLessons
+type: object

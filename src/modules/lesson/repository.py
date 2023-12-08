@@ -1,36 +1,36 @@
-__all__ = ["TestRepository"]
+__all__ = ["LessonRepository"]
 
 from typing import Optional
 
-from src.modules.lesson.schemas import ViewLesson, CreateLesson, CreateTask, ViewTask, UpdateTest
+from src.modules.lesson.schemas import ViewLesson, CreateLesson, CreateTask, ViewTask, UpdateLesson
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 from src.storages.sqlalchemy.models.lesson import Lesson, Task, TaskAssociation
 from src.storages.sqlalchemy.utils import *
 
 
-class TestRepository(SQLAlchemyRepository):
+class LessonRepository(SQLAlchemyRepository):
     # ----------------- Test -----------------
-    async def create_test(self, data: CreateLesson) -> ViewLesson:
+    async def create_lesson(self, data: CreateLesson) -> ViewLesson:
         async with self._create_session() as session:
             q = insert(Lesson).values(data.model_dump()).returning(Lesson)
             obj = await session.scalar(q)
             await session.commit()
             return ViewLesson.model_validate(obj)
 
-    async def read_all_tests(self) -> list[ViewLesson]:
+    async def read_all_lessons(self) -> list[ViewLesson]:
         async with self._create_session() as session:
             q = select(Lesson)
             objs = await session.scalars(q)
             return [ViewLesson.model_validate(obj) for obj in objs]
 
-    async def read_test(self, id_: int) -> Optional[ViewLesson]:
+    async def read_lesson(self, id_: int) -> Optional[ViewLesson]:
         async with self._create_session() as session:
             q = select(Lesson).where(Lesson.id == id_)
             obj = await session.scalar(q)
             if obj:
                 return ViewLesson.model_validate(obj)
 
-    async def update_test(self, id_: int, data: UpdateTest) -> ViewLesson:
+    async def update_lesson(self, id_: int, data: UpdateLesson) -> ViewLesson:
         async with self._create_session() as session:
             q = (
                 update(Lesson)
@@ -42,7 +42,26 @@ class TestRepository(SQLAlchemyRepository):
             await session.commit()
             return ViewLesson.model_validate(obj)
 
-    async def set_tasks_for_test(self, test_id: int, task_ids: list[int]) -> None:
+    async def upsert_lesson(self, data: CreateLesson) -> ViewLesson:
+        async with self._create_session() as session:
+            # alias
+            q = select(Lesson).where(Lesson.alias == data.alias)
+            obj = await session.scalar(q)
+            if obj:
+                q = (
+                    update(Lesson)
+                    .where(Lesson.id == obj.id)
+                    .values(data.model_dump(exclude_none=True, exclude_unset=True))
+                    .returning(Lesson)
+                )
+                obj = await session.scalar(q)
+            else:
+                q = insert(Lesson).values(data.model_dump()).returning(Lesson)
+                obj = await session.scalar(q)
+            await session.commit()
+            return ViewLesson.model_validate(obj)
+
+    async def set_tasks_for_lesson(self, test_id: int, task_ids: list[int]) -> None:
         async with self._create_session() as session:
             q = delete(TaskAssociation).where(TaskAssociation.test_id == test_id)
             await session.execute(q)
@@ -50,6 +69,34 @@ class TestRepository(SQLAlchemyRepository):
                 q = insert(TaskAssociation).values(test_id=test_id, task_id=task_id, order=i)
                 await session.execute(q)
             await session.commit()
+
+    async def set_tasks_for_lesson_by_aliases(self, lesson_alias: str, task_aliases: list[str]) -> None:
+        async with self._create_session() as session:
+            q = select(Lesson).where(Lesson.alias == lesson_alias)
+            lesson = await session.scalar(q)
+            if not lesson:
+                return
+            q = delete(TaskAssociation).where(TaskAssociation.test_id == lesson.id)
+            await session.execute(q)
+            for i, task_alias in enumerate(task_aliases):
+                q = select(Task).where(Task.alias == task_alias)
+                task = await session.scalar(q)
+                if not task:
+                    continue
+                q = insert(TaskAssociation).values(test_id=lesson.id, task_id=task.id, order=i)
+                await session.execute(q)
+            await session.commit()
+
+    async def read_all_tasks_for_lesson(self, lesson_id: int) -> list[ViewTask]:
+        async with self._create_session() as session:
+            q = (
+                select(Task)
+                .join(TaskAssociation, TaskAssociation.task_id == Task.id)
+                .where(TaskAssociation.test_id == lesson_id)
+                .order_by(TaskAssociation.order)
+            )
+            objs = await session.scalars(q)
+            return [ViewTask.model_validate(obj) for obj in objs]
 
     # ----------------- Task -----------------
     async def create_task(self, data: CreateTask) -> ViewTask:
@@ -81,5 +128,24 @@ class TestRepository(SQLAlchemyRepository):
                 .returning(Task)
             )
             obj = await session.scalar(q)
+            await session.commit()
+            return ViewTask.model_validate(obj)
+
+    async def upsert_task(self, data: CreateTask) -> ViewTask:
+        async with self._create_session() as session:
+            # alias
+            q = select(Task).where(Task.alias == data.alias)
+            obj = await session.scalar(q)
+            if obj:
+                q = (
+                    update(Task)
+                    .where(Task.id == obj.id)
+                    .values(data.model_dump(exclude_none=True, exclude_unset=True))
+                    .returning(Task)
+                )
+                obj = await session.scalar(q)
+            else:
+                q = insert(Task).values(data.model_dump(exclude_none=True, exclude_unset=True)).returning(Task)
+                obj = await session.scalar(q)
             await session.commit()
             return ViewTask.model_validate(obj)
