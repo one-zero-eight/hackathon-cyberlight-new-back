@@ -122,15 +122,15 @@ class LevelRewards(Base):
     reward_id: Mapped[int] = mapped_column(ForeignKey(Reward.id), primary_key=True)
 
 
-class PersonalAccountRewards(Base):
+class PersonalAccountRewards(Base, IdMixin):
     """
     Награда юзера
     """
 
     __tablename__ = "personal_account_rewards"
 
-    reward_id: Mapped[int] = mapped_column(ForeignKey(Reward.id), primary_key=True)
-    personal_account_id: Mapped[int] = mapped_column(ForeignKey(PersonalAccount.user_id), primary_key=True)
+    reward_id: Mapped[int] = mapped_column(ForeignKey(Reward.id))
+    personal_account_id: Mapped[int] = mapped_column(ForeignKey(PersonalAccount.user_id))
 
 
 class Achievement(Base, IdMixin):

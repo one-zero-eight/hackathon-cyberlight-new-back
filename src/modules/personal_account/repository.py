@@ -30,10 +30,10 @@ class PersonalAccountRepository(SQLAlchemyRepository):
 class RewardRepository(SQLAlchemyRepository):
     async def create(self, reward_data: CreateReward) -> ViewReward:
         async with self._create_session() as session:
-            q = insert(Reward).values(reward_data.model_dump()).returning(Reward)
-            result = await session.execute(q)
+            reward = Reward(**reward_data.model_dump())
+            session.add(reward)
             await session.commit()
-            return ViewReward.model_validate(result)
+            return ViewReward.model_validate(reward)
 
     async def read(self, _id: int) -> Optional[ViewReward]:
         async with self._create_session() as session:

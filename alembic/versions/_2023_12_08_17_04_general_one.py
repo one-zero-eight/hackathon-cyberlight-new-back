@@ -1,19 +1,19 @@
-"""personal_account
+"""general_one
 
-Revision ID: b2390175ad0f
-Revises: 6e9e706e216c
-Create Date: 2023-12-08 12:43:39.524102
+Revision ID: 8cdef8557c6e
+Revises: 
+Create Date: 2023-12-08 17:04:19.697789
 
 """
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "b2390175ad0f"
-down_revision: Union[str, None] = "6e9e706e216c"
+revision: str = "8cdef8557c6e"
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -36,6 +36,17 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
+        "lessons",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("alias", sa.String(), nullable=False),
+        sa.Column("title", sa.String(), nullable=False),
+        sa.Column("content", sa.String(), nullable=False),
+        sa.Column("difficulty", sa.Integer(), nullable=False),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("alias"),
+    )
+    op.create_index(op.f("ix_lessons_id"), "lessons", ["id"], unique=False)
+    op.create_table(
         "level",
         sa.Column("experience", sa.Integer(), nullable=False),
         sa.Column("value", sa.Integer(), nullable=False),
@@ -51,6 +62,33 @@ def upgrade() -> None:
         sa.Column("icon", sa.String(), nullable=True),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_table(
+        "tasks",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("alias", sa.String(), nullable=False),
+        sa.Column("title", sa.String(), nullable=False),
+        sa.Column("content", sa.String(), nullable=False),
+        sa.Column(
+            "type", sa.Enum("empty", "instant", "radio", "multichoice", "input", name="steptype"), nullable=False
+        ),
+        sa.Column("choices", postgresql.ARRAY(sa.String()), nullable=True),
+        sa.Column("correct_choices", postgresql.ARRAY(sa.Integer()), nullable=True),
+        sa.Column("input_answers", postgresql.ARRAY(sa.String()), nullable=True),
+        sa.Column("reward", sa.Integer(), nullable=False),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("alias"),
+    )
+    op.create_index(op.f("ix_tasks_id"), "tasks", ["id"], unique=False)
+    op.create_table(
+        "users",
+        sa.Column("name", sa.String(), nullable=True),
+        sa.Column("login", sa.String(), nullable=False),
+        sa.Column("password_hash", sa.String(), nullable=False),
+        sa.Column("role", sa.Enum("DEFAULT", "ADMIN", name="userrole"), nullable=False),
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("login"),
     )
     op.create_table(
         "battle_pass_levels",
@@ -90,6 +128,21 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("user_id"),
     )
     op.create_table(
+        "task_association",
+        sa.Column("test_id", sa.Integer(), nullable=False),
+        sa.Column("task_id", sa.Integer(), nullable=False),
+        sa.Column("order", sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["task_id"],
+            ["tasks.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["test_id"],
+            ["lessons.id"],
+        ),
+        sa.PrimaryKeyConstraint("test_id", "task_id"),
+    )
+    op.create_table(
         "personal_account_achievements",
         sa.Column("personal_account_id", sa.Integer(), nullable=False),
         sa.Column("achievement_id", sa.Integer(), nullable=False),
@@ -122,6 +175,7 @@ def upgrade() -> None:
         "personal_account_rewards",
         sa.Column("reward_id", sa.Integer(), nullable=False),
         sa.Column("personal_account_id", sa.Integer(), nullable=False),
+        sa.Column("id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["personal_account_id"],
             ["personal_account.user_id"],
@@ -130,7 +184,7 @@ def upgrade() -> None:
             ["reward_id"],
             ["reward.id"],
         ),
-        sa.PrimaryKeyConstraint("reward_id", "personal_account_id"),
+        sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###
 
@@ -140,11 +194,17 @@ def downgrade() -> None:
     op.drop_table("personal_account_rewards")
     op.drop_table("personal_account_battle_passes")
     op.drop_table("personal_account_achievements")
+    op.drop_table("task_association")
     op.drop_table("personal_account")
     op.drop_table("level_rewards")
     op.drop_table("battle_pass_levels")
+    op.drop_table("users")
+    op.drop_index(op.f("ix_tasks_id"), table_name="tasks")
+    op.drop_table("tasks")
     op.drop_table("reward")
     op.drop_table("level")
+    op.drop_index(op.f("ix_lessons_id"), table_name="lessons")
+    op.drop_table("lessons")
     op.drop_table("battle_pass")
     op.drop_table("achievement")
     # ### end Alembic commands ###
