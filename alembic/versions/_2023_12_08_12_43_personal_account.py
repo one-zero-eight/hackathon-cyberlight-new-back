@@ -1,8 +1,8 @@
 """personal_account
 
-Revision ID: ac9d8f22b747
+Revision ID: b2390175ad0f
 Revises: 6e9e706e216c
-Create Date: 2023-12-08 12:32:24.923229
+Create Date: 2023-12-08 12:43:39.524102
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "ac9d8f22b747"
+revision: str = "b2390175ad0f"
 down_revision: Union[str, None] = "6e9e706e216c"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -51,6 +51,20 @@ def upgrade() -> None:
         sa.Column("icon", sa.String(), nullable=True),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_table(
+        "battle_pass_levels",
+        sa.Column("battle_pass_id", sa.Integer(), nullable=False),
+        sa.Column("level_id", sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["battle_pass_id"],
+            ["battle_pass.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["level_id"],
+            ["level.id"],
+        ),
+        sa.PrimaryKeyConstraint("battle_pass_id", "level_id"),
     )
     op.create_table(
         "level_rewards",
@@ -128,6 +142,7 @@ def downgrade() -> None:
     op.drop_table("personal_account_achievements")
     op.drop_table("personal_account")
     op.drop_table("level_rewards")
+    op.drop_table("battle_pass_levels")
     op.drop_table("reward")
     op.drop_table("level")
     op.drop_table("battle_pass")

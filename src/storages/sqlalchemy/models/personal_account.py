@@ -29,7 +29,7 @@ class PersonalAccount(Base):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     rewards: Mapped[Optional[list["Reward"]]] = relationship(
-        "Reward", secondary="personal_account_rewards", back_populates="reward_personal_accounts", lazy="selectin"
+        "Reward", secondary="personal_account_rewards", lazy="selectin"
     )
     achievements: Mapped[Optional[list["Achievement"]]] = relationship(
         "Achievement", secondary="personal_account_achievements", lazy="selectin"
@@ -46,7 +46,7 @@ class BattlePass(Base, IdMixin):
 
     __tablename__ = "battle_pass"
 
-    levels: Mapped[list["Level"]] = relationship("Level", lazy="selectin")
+    levels: Mapped[Optional[list["Level"]]] = relationship("Level", secondary="battle_pass_levels", lazy="selectin")
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
 
 
@@ -72,9 +72,18 @@ class Level(Base, IdMixin):
 
     experience: Mapped[int] = mapped_column(nullable=False)  # необходимое кол-во экспы для уровня
     value: Mapped[int] = mapped_column(nullable=False)  # порядковый номер уровня (первый, второй, и т.д.)
-    rewards: Mapped[Optional[list["Reward"]]] = relationship(
-        "Reward", secondary="level_rewards", back_populates="reward_levels", lazy="selectin"
-    )
+    rewards: Mapped[Optional[list["Reward"]]] = relationship("Reward", secondary="level_rewards", lazy="selectin")
+
+
+class BattlePassLevels(Base):
+    """
+    Связка БП и Левелов
+    """
+
+    __tablename__ = "battle_pass_levels"
+
+    battle_pass_id: Mapped[int] = mapped_column(ForeignKey(BattlePass.id), primary_key=True)
+    level_id: Mapped[int] = mapped_column(ForeignKey(Level.id), primary_key=True)
 
 
 class RewardType(StrEnum):

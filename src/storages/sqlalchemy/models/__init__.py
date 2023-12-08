@@ -11,6 +11,7 @@ from src.storages.sqlalchemy.models.personal_account import (
     Achievement,
     PersonalAccountAchievements,
     PersonalAccountRewards,
+    BattlePassLevels,
 )
 
 # Add all models here
@@ -29,4 +30,5 @@ __all__ = [
     "Achievement",
     "PersonalAccountAchievements",
     "PersonalAccountRewards",
+    "BattlePassLevels",
 ]
