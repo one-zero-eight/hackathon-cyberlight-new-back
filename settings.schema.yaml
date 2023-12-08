@@ -1,0 +1,133 @@
+$schema: http://json-schema.org/draft-07/schema#
+$defs:
+  Cookies:
+    properties:
+      name:
+        default: token
+        title: Name
+        type: string
+      domain:
+        default: innohassle.ru
+        title: Domain
+        type: string
+      allowed_domains:
+        default:
+        - innohassle.ru
+        - api.innohassle.ru
+        - localhost
+        items:
+          type: string
+        title: Allowed Domains
+        type: array
+    title: Cookies
+    type: object
+  Database:
+    description: PostgreSQL database settings.
+    properties:
+      uri:
+        description: Database URI. If not set, will be generated from other settings
+        title: Uri
+        type: string
+    required:
+    - uri
+    title: Database
+    type: object
+  Environment:
+    enum:
+    - development
+    - production
+    - testing
+    title: Environment
+    type: string
+  Predefined:
+    description: Predefined settings. Will be used in setup stage.
+    properties:
+      first_superuser_login:
+        default: admin
+        description: Login for the first superuser
+        title: First Superuser Login
+        type: string
+      first_superuser_password:
+        default: admin
+        description: Password for the first superuser
+        title: First Superuser Password
+        type: string
+    title: Predefined
+    type: object
+  StaticFiles:
+    properties:
+      mount_path:
+        default: /static
+        title: Mount Path
+        type: string
+      mount_name:
+        default: static
+        title: Mount Name
+        type: string
+      directory:
+        default: static
+        format: path
+        title: Directory
+        type: string
+    title: StaticFiles
+    type: object
+description: Settings for the application.
+properties:
+  environment:
+    allOf:
+    - $ref: '#/$defs/Environment'
+    default: development
+    description: App environment flag
+  app_root_path:
+    default: ''
+    description: Prefix for the API path (e.g. "/api/v0")
+    title: App Root Path
+    type: string
+  database:
+    allOf:
+    - $ref: '#/$defs/Database'
+    description: PostgreSQL database settings
+  predefined:
+    allOf:
+    - $ref: '#/$defs/Predefined'
+    description: Predefined settings
+  session_secret_key:
+    description: Secret key for sessions middleware. Use 'openssl rand -hex 32' to
+      generate keys
+    format: password
+    title: Session Secret Key
+    type: string
+    writeOnly: true
+  jwt_private_key:
+    description: Private key for JWT. Use 'openssl genrsa -out private.pem 2048' to
+      generate keys
+    format: password
+    title: Jwt Private Key
+    type: string
+    writeOnly: true
+  jwt_public_key:
+    description: Public key for JWT. Use 'openssl rsa -in private.pem -pubout -out
+      public.pem' to generate keys
+    title: Jwt Public Key
+    type: string
+  static_files:
+    allOf:
+    - $ref: '#/$defs/StaticFiles'
+    description: Static files settings
+  cors_allow_origins:
+    description: CORS origins, used by FastAPI CORSMiddleware
+    items:
+      type: string
+    title: Cors Allow Origins
+    type: array
+  cookie:
+    anyOf:
+    - $ref: '#/$defs/Cookies'
+    - type: 'null'
+    description: Cookies settings
+required:
+- session_secret_key
+- jwt_private_key
+- jwt_public_key
+title: Settings
+type: object
