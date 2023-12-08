@@ -42,16 +42,16 @@ $defs:
   MailingTemplate:
     properties:
       subject:
+        default: "\u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F\
+          \ \u0432 \u041A\u0438\u0431\u0435\u0440.\u0411\u0430\u0437\u0435"
         description: Subject of the email
         title: Subject
         type: string
       file:
+        default: auth-code.jinja2
         description: Path to the template file (relative to static folder)
         title: File
         type: string
-    required:
-    - subject
-    - file
     title: MailingTemplate
     type: object
   Predefined:
