@@ -15,7 +15,7 @@ from src.modules.lesson.schemas import CreateLesson
 from src.modules.smtp.repository import SMTPRepository
 from src.modules.user.repository import UserRepository
 from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository, AchievementRepository
-from src.storages.predefined.lessons import PredefinedLessons
+from src.storages.predefined.storage import PredefinedLessons
 
 from src.storages.sqlalchemy.storage import SQLAlchemyStorage
 

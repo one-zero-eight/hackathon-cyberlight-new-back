@@ -3,6 +3,7 @@ from enum import StrEnum
 from sqlalchemy import Integer
 from sqlalchemy.dialects import postgresql
 
+from src.storages.sqlalchemy.models import Reward
 from src.storages.sqlalchemy.models.base import Base
 from src.storages.sqlalchemy.utils import *
 
@@ -41,6 +42,8 @@ class Task(Base):
     correct_choices: Mapped[list[int]] = mapped_column(postgresql.ARRAY(Integer), nullable=True, default=None)
     input_answers: Mapped[list[str]] = mapped_column(postgresql.ARRAY(String), nullable=True, default=None)
     reward: Mapped[int] = mapped_column(nullable=False, default=0)
+    rewards: AssociationProxy[list["Reward"]] = association_proxy("rewards_associations", "reward")
+    rewards_associations: Mapped[list["TaskReward"]] = relationship("TaskReward", lazy="selectin")
 
 
 class TaskAssociation(Base):
@@ -51,3 +54,13 @@ class TaskAssociation(Base):
     order: Mapped[int] = mapped_column(nullable=False, default=0)
     lesson: Mapped[Lesson] = relationship(Lesson, viewonly=True)
     task: Mapped[Task] = relationship(Task, lazy="joined", viewonly=True)
+
+
+class TaskReward(Base):
+    __tablename__ = "task_rewards"
+
+    task_id: Mapped[int] = mapped_column(ForeignKey(Task.id), primary_key=True)
+    reward_id: Mapped[int] = mapped_column(ForeignKey(Reward.id), primary_key=True)
+    task: Mapped[Task] = relationship(Task, viewonly=True)
+    reward: Mapped[Reward] = relationship(Reward, viewonly=True, lazy="joined")
+    count: Mapped[int] = mapped_column(nullable=False, default=1)

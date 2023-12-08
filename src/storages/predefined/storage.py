@@ -4,7 +4,7 @@ from typing import Optional
 import yaml
 from pydantic import BaseModel, Field
 
-from src.storages.sqlalchemy.models import StepType
+from src.storages.sqlalchemy.models import StepType, RewardType
 
 
 class Lesson(BaseModel):
@@ -13,6 +13,15 @@ class Lesson(BaseModel):
     content: str
     difficulty: int
     tasks: list[str] = Field(default_factory=list, description="List of tasks aliases")
+
+
+class Reward:
+    id: int
+    type: RewardType = Field(RewardType.NONE, description="Type of the reward")
+    name: str
+    content: str
+    image: Optional[str] = Field(default=None, description="Image of the reward")
+    price: Optional[int] = Field(None, description="Price of the reward in points")
 
 
 class Task(BaseModel):
@@ -28,11 +37,13 @@ class Task(BaseModel):
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
     reward: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
+    rewards: Optional[list[Reward]] = Field(default_factory=list, description="List of rewards for the task")
 
 
 class PredefinedLessons(BaseModel):
     lessons: Optional[list[Lesson]] = Field(default_factory=list, description="List of predefined lessons")
     tasks: Optional[list[Task]] = Field(default_factory=list, description="List of predefined tasks")
+    rewards: Optional[list[Reward]] = Field(default_factory=list, description="List of predefined rewards")
 
     @classmethod
     def save_schema(cls, path: Path) -> None:

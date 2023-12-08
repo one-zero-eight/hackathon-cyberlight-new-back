@@ -92,9 +92,10 @@ class RewardType(StrEnum):
     Типы наград
     """
 
-    DEFAULT = "default"
+    NONE = "none"
 
-    # TODO: добавить типы
+    XP = "xp"
+    ITEM = "item"
 
 
 class Reward(Base, IdMixin):
@@ -106,7 +107,7 @@ class Reward(Base, IdMixin):
 
     name: Mapped[str] = mapped_column(nullable=False)
     content: Mapped[str] = mapped_column(nullable=False)
-    type: Mapped[RewardType] = mapped_column(nullable=False, default=RewardType.DEFAULT)
+    type: Mapped[RewardType] = mapped_column(nullable=False, default=RewardType.NONE)
     image: Mapped[str] = mapped_column(nullable=True)
     icon: Mapped[str] = mapped_column(nullable=True)
 

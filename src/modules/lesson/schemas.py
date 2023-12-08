@@ -2,6 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.modules.personal_account.schemas import ViewReward
 from src.storages.sqlalchemy.models.lesson import StepType
 
 
@@ -50,6 +51,7 @@ class ViewTask(BaseModel):
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
     reward: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
+    rewards_associations: Optional[list["RewardAssociation"]] = Field(default_factory=list)
 
     def check_answer(self, answer: Optional[list[str]]) -> bool:
         if self.type == StepType.input:
@@ -62,6 +64,14 @@ class ViewTask(BaseModel):
             return answer == self.correct_choices
         else:
             return False
+
+
+class RewardAssociation(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    task_id: int = Field(..., description="ID of the task")
+    reward: ViewReward = Field(..., description="ID of the reward")
+    count: int = Field(..., description="Count of the reward")
 
 
 class CreateTask(BaseModel):

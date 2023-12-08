@@ -29,7 +29,7 @@ tasks:
       - г) Перешлю письмо другу, чтобы он проверил ссылку
     correct_choices:
       - 1
-
+    rewards: [100000001, 100000002]
   - alias: task2
     type: radio
     content: |
@@ -136,18 +136,13 @@ rewards:
   - id: 100000001
     name: Промокод на скидку от Skillbox
     content: 8ASCFNJAS7123LDA
-    type: default
     image: static/images/reward_images/reward_image_100000001.png
-    icon: static/images/reward_icons/reward_icon_100000001.png
   - id: 100000002
     name: Промокод на скидку от Stepik
     content: 8ASCFNDDDDA
-    type: default
     image: static/images/reward_images/reward_image_100000002.png
-    icon: static/images/reward_icons/reward_icon_100000002.png
   - id: 100000003
     name: Худи от Кибер.База
     content: TYTYA12
-    type: default
+    type: item
     image: static/images/reward_images/reward_image_100000003.png
-    icon: static/images/reward_icons/reward_icon_100000003.png
