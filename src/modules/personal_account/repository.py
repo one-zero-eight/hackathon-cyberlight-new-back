@@ -2,10 +2,15 @@ from typing import Optional
 
 from src.api.exceptions import ObjectNotFound
 from src.modules.auth.schemas import VerificationResult
-from src.storages.sqlalchemy.models import PersonalAccount, Reward
+from src.storages.sqlalchemy.models import PersonalAccount, Reward, PersonalAccountRewards
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 from src.storages.sqlalchemy.utils import *
-from src.modules.personal_account.schemas import ViewPersonalAccount, ViewReward, CreateReward
+from src.modules.personal_account.schemas import (
+    ViewPersonalAccount,
+    ViewReward,
+    CreateReward,
+    CreatePersonalAccountReward,
+)
 
 
 class PersonalAccountRepository(SQLAlchemyRepository):
@@ -45,3 +50,9 @@ class RewardRepository(SQLAlchemyRepository):
             if objs:
                 return [ViewReward.model_validate(obj) for obj in objs]
             raise ObjectNotFound()
+
+    async def set_to_personal_account(self, create_personal_account_reward: CreatePersonalAccountReward) -> None:
+        async with self._create_session() as session:
+            q = insert(PersonalAccountRewards).values(create_personal_account_reward.model_dump())
+            await session.execute(q)
+            await session.commit()

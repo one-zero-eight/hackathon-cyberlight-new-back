@@ -9,7 +9,12 @@ from src.api.exceptions import IncorrectCredentialsException, NoCredentialsExcep
 from src.modules.auth.dependencies import verify_request
 from src.modules.auth.schemas import VerificationResult
 from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository
-from src.modules.personal_account.schemas import ViewPersonalAccount, ViewReward, CreateReward
+from src.modules.personal_account.schemas import (
+    ViewPersonalAccount,
+    ViewReward,
+    CreateReward,
+    CreatePersonalAccountReward,
+)
 
 router = APIRouter(tags=["Personal Account"])
 
@@ -78,3 +83,20 @@ async def create_reward(
 ) -> ViewReward:
     reward = await reward_repository.create(obj)
     return reward
+
+
+@router.post(
+    "/reward/set-to-personal-account",
+    responses={
+        200: {"description": "Set reward to personal account"},
+        **IncorrectCredentialsException.responses,
+        **NoCredentialsException.responses,
+    },
+)
+async def set_reward_to_personal_account(
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    reward_repository: Annotated[RewardRepository, DEPENDS_REWARD_REPOSITORY],
+    obj: CreatePersonalAccountReward,
+) -> None:
+    await reward_repository.set_to_personal_account(obj)
+    return {"success": True}

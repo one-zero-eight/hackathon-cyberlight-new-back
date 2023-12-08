@@ -18,6 +18,7 @@ class ViewPersonalAccount(BaseModel):
 class ViewReward(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: int = Field(..., description="Obj id")
     name: str = Field(..., description="Reward name (title)", examples=["Промокод на скидку от партнеров"])
     content: str = Field(..., description="Reward content (useful thing)", examples=["ADASD!#412V"])
     type: "RewardType" = Field(..., description="Type of reward", examples=["default"])
@@ -41,9 +42,15 @@ class CreateReward(BaseModel):
     )
 
 
+class CreatePersonalAccountReward(BaseModel):
+    reward_id: int = Field(..., description="Reward obj id", examples=[0, 1, 3])
+    personal_account_id: int = Field(..., description="Personal account obj id", examples=[1, 2, 3])
+
+
 class ViewAchievement(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: int = Field(..., description="Obj id")
     name: str = Field(..., description="Achievement name (title)", examples=["Анонимус"])
     description: str = Field(..., description="Reward description", examples=["Не дал узнать о себе"])
     image: Optional[str] = Field(
@@ -57,6 +64,7 @@ class ViewAchievement(BaseModel):
 class ViewBattlePass(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: int = Field(..., description="Obj id")
     levels: Optional[list["ViewLevel"]] = Field(
         default_factory=list, description="List of levels set to current battle pass"
     )
@@ -66,6 +74,7 @@ class ViewBattlePass(BaseModel):
 class ViewLevel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: int = Field(..., description="Obj id")
     experience: int = Field(
         ..., description="Amount of experience needed to reach this level", examples=[100, 1000, 10000]
     )
