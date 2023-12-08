@@ -140,6 +140,18 @@ class AchievementRepository(SQLAlchemyRepository):
         self, create_personal_account_achievement: CreatePersonalAccountAchievement
     ) -> None:
         async with self._create_session() as session:
+            # check for exist
+            q = (
+                select(PersonalAccountAchievements)
+                .where(PersonalAccountAchievements.achievement_id == create_personal_account_achievement.achievement_id)
+                .where(
+                    PersonalAccountAchievements.personal_account_id
+                    == create_personal_account_achievement.personal_account_id
+                )
+            )
+            result = await session.scalar(q)
+            if result:
+                return
             q = insert(PersonalAccountAchievements).values(create_personal_account_achievement.model_dump())
             await session.execute(q)
             await session.commit()
