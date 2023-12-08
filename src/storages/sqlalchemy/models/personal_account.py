@@ -9,6 +9,7 @@ __all__ = [
     "Achievement",
     "PersonalAccountAchievements",
     "PersonalAccountRewards",
+    "BattlePassLevels",
 ]
 
 from enum import StrEnum
