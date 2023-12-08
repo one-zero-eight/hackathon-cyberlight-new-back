@@ -9,6 +9,8 @@ from src.modules.personal_account.schemas import (
     ViewAchievement,
     CreateAchievement,
     UpdateReward,
+    UpdateAchievement,
+    CreatePersonalAccountAchievement,
 )
 from src.storages.sqlalchemy.models import (
     PersonalAccount,
@@ -122,7 +124,21 @@ class AchievementRepository(SQLAlchemyRepository):
             if obj:
                 return ViewAchievement.model_validate(obj)
 
-    async def set_to_personal_account(self, create_personal_account_achievement: CreatePersonalAccountReward) -> None:
+    async def update(self, _id: int, achievement_data: UpdateAchievement) -> ViewAchievement:
+        async with self._create_session() as session:
+            q = (
+                update(Achievement)
+                .where(Achievement.id == _id)
+                .values(achievement_data.model_dump(exclude_none=True, exclude_unset=True))
+                .returning(Achievement)
+            )
+            obj = await session.scalar(q)
+            await session.commit()
+            return ViewAchievement.model_validate(obj)
+
+    async def set_to_personal_account(
+        self, create_personal_account_achievement: CreatePersonalAccountAchievement
+    ) -> None:
         async with self._create_session() as session:
             q = insert(PersonalAccountAchievements).values(create_personal_account_achievement.model_dump())
             await session.execute(q)

@@ -138,13 +138,58 @@ rewards:
   - id: 100000001
     name: Промокод на скидку от Skillbox
     content: 8ASCFNJAS7123LDA
-    image: static/images/reward_images/reward_image_100000001.png
+    image: "promocode.png"
   - id: 100000002
     name: Промокод на скидку от Stepik
     content: 8ASCFNDDDDA
-    image: static/images/reward_images/reward_image_100000002.png
+    image: "promocode.png"
   - id: 100000003
     name: Худи от Кибер.База
     content: TYTYA12
     type: item
-    image: static/images/reward_images/reward_image_100000003.png
+    image: "hoodie.png"
+
+achievements:
+  - name: "Аноним"
+    id: 100000001
+    description: "Награда за соблюдение конфиденциальности: получена за отказ от предоставления личных данных при регистрации."
+    image: "glasses.png"
+
+  - name: "Страж данных"
+    id: 100000002
+    description: "Защитите свои данные от виртуальных угроз и завершите курс по кибергигиене."
+    image: "coffee.png"
+
+  - name: "Хакер этики"
+    id: 100000003
+    description: "Пройдите курс по этичному хакингу и успешно сдайте финальный экзамен."
+    image: "hacker.png"
+
+  - name: "Мастер шифрования"
+    id: 100000004
+    description: "Освойте искусство криптографии и успешно разработайте собственный алгоритм шифрования."
+
+  - name: "Борец с ботнетами"
+    image: "hidjab.png"
+    id: 100000005
+    description: "Успешно идентифицируйте и нейтрализуйте ботнет в нашем виртуальном лабораторном задании."
+
+  - name: "Защитник сети"
+    image: "monitor.png"
+    id: 100000006
+    description: "Завершите продвинутой курс по сетевой безопасности и успешно отразите атаку DDoS на практическом занятии."
+
+  - name: "Кибердетектив"
+    image: "eye.png"
+    id: 100000007
+    description: "Раскройте сложный кибер-инцидент в рамках курса по расследованию киберпреступлений."
+
+  - name: "Властелин паролей"
+    image: "locker.png"
+    id: 100000008
+    description: "Создайте идеальную систему управления паролями в рамках курса по управлению цифровыми идентификаторами."
+
+  - name: "Гуру безопасности"
+    image: "laptop.png"
+    id: 100000009
+    description: "Закончите все курсы по кибербезопасности на платформе и успешно пройдите комплексный тест."

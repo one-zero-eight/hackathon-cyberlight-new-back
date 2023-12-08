@@ -69,6 +69,14 @@ class CreateAchievement(BaseModel):
     )
 
 
+class UpdateAchievement(BaseModel):
+    name: Optional[str] = Field(None, description="Achievement name (title)", examples=["Анонимус"])
+    description: Optional[str] = Field(None, description="Reward description", examples=["Не дал узнать о себе"])
+    image: Optional[str] = Field(
+        None, description="Image path", examples=["static/images/achievement_images/achievement_image.png"]
+    )
+
+
 class CreatePersonalAccountAchievement(BaseModel):
     achievement_id: int = Field(..., description="Achievement obj id", examples=[0, 1, 3])
     personal_account_id: int = Field(..., description="Personal account obj id", examples=[1, 2, 3])

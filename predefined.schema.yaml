@@ -1,5 +1,29 @@
 $schema: http://json-schema.org/draft-07/schema#
 $defs:
+  Achievement:
+    properties:
+      id:
+        title: Id
+        type: integer
+      name:
+        title: Name
+        type: string
+      description:
+        title: Description
+        type: string
+      image:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        description: Image of the achievement
+        title: Image
+    required:
+    - id
+    - name
+    - description
+    title: Achievement
+    type: object
   Lesson:
     properties:
       alias:
@@ -182,5 +206,13 @@ properties:
     - type: 'null'
     description: List of predefined rewards
     title: Rewards
+  achievements:
+    anyOf:
+    - items:
+        $ref: '#/$defs/Achievement'
+      type: array
+    - type: 'null'
+    description: List of predefined achievements
+    title: Achievements
 title: PredefinedLessons
 type: object

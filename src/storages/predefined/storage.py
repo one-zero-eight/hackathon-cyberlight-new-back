@@ -43,10 +43,20 @@ class Task(BaseModel):
     rewards: Optional[list[RewardEntry]] = Field(default_factory=list, description="List of reward ids for the task")
 
 
+class Achievement(BaseModel):
+    id: int
+    name: str
+    description: str
+    image: Optional[str] = Field(default=None, description="Image of the achievement")
+
+
 class PredefinedLessons(BaseModel):
     lessons: Optional[list[Lesson]] = Field(default_factory=list, description="List of predefined lessons")
     tasks: Optional[list[Task]] = Field(default_factory=list, description="List of predefined tasks")
     rewards: Optional[list[Reward]] = Field(default_factory=list, description="List of predefined rewards")
+    achievements: Optional[list[Achievement]] = Field(
+        default_factory=list, description="List of predefined achievements"
+    )
 
     @classmethod
     def save_schema(cls, path: Path) -> None:

@@ -12,7 +12,7 @@ from src.config_schema import Environment
 from src.modules.auth.repository import AuthRepository
 from src.modules.lesson.repository import LessonRepository
 from src.modules.lesson.schemas import CreateLesson, CreateTask
-from src.modules.personal_account.schemas import UpdateReward
+from src.modules.personal_account.schemas import UpdateReward, UpdateAchievement, CreatePersonalAccountAchievement
 from src.modules.smtp.repository import SMTPRepository
 from src.modules.user.repository import UserRepository
 from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository, AchievementRepository
@@ -61,8 +61,10 @@ def setup_admin_panel(app: FastAPI):
 
 async def setup_predefined():
     user_repository = Dependencies.get_user_repository()
-    if not await user_repository.read_by_login(settings.predefined.first_superuser_login):
-        await user_repository.create_superuser(
+
+    superuser = await user_repository.read_by_login(settings.predefined.first_superuser_login)
+    if not superuser:
+        superuser = await user_repository.create_superuser(
             login=settings.predefined.first_superuser_login,
             password=settings.predefined.first_superuser_password,
         )
@@ -70,12 +72,29 @@ async def setup_predefined():
     predefined: PredefinedLessons = PredefinedLessons.from_yaml(Path("predefined.yaml"))
     lesson_repository = Dependencies.get_lesson_repository()
     reward_repository = Dependencies.get_reward_repository()
+    achievement_repository = Dependencies.get_achievement_repository()
+
     for reward in predefined.rewards:
         db_reward = await reward_repository.read(reward.id)
         if not db_reward:
             await reward_repository.create(reward)
         else:
             await reward_repository.update(reward.id, UpdateReward.model_validate(reward, from_attributes=True))
+
+    for achievement in predefined.achievements:
+        db_achievement = await achievement_repository.read(achievement.id)
+        if not db_achievement:
+            await achievement_repository.create(achievement)
+        else:
+            await achievement_repository.update(
+                achievement.id, UpdateAchievement.model_validate(achievement, from_attributes=True)
+            )
+        await achievement_repository.set_to_personal_account(
+            CreatePersonalAccountAchievement(
+                achievement_id=achievement.id,
+                personal_account_id=superuser.id,
+            )
+        )
 
     for task in predefined.tasks:
         await lesson_repository.upsert_task(CreateTask.model_validate(task, from_attributes=True))
