@@ -5,6 +5,8 @@ from typing import Optional
 import yaml
 from pydantic import BaseModel, Field, field_validator, SecretStr, ConfigDict
 
+from src.modules.smtp.schemas import MailingTemplate
+
 
 class Environment(StrEnum):
     DEVELOPMENT = "development"
@@ -52,6 +54,14 @@ class Predefined(BaseModel):
     first_superuser_password: str = Field(default="admin", description="Password for the first superuser")
 
 
+class SMTP(BaseModel):
+    server: str = Field(..., description="SMTP server (hostname)")
+    port: int = Field(587, description="SMTP port")
+    username: str = Field(..., description="SMTP username (email)")
+    password: SecretStr = Field(..., description="SMTP password")
+    mailing_template: MailingTemplate = Field(default_factory=MailingTemplate, description="Mailing template settings")
+
+
 class Settings(BaseModel):
     """
     Settings for the application.
@@ -66,6 +76,8 @@ class Settings(BaseModel):
     database: Database = Field(default_factory=Database, description="PostgreSQL database settings")
 
     predefined: Predefined = Field(default_factory=Predefined, description="Predefined settings")
+
+    smtp: SMTP = Field(..., description="SMTP settings")
 
     session_secret_key: SecretStr = Field(
         ..., description="Secret key for sessions middleware. Use 'openssl " "rand -hex 32' to generate keys"
@@ -86,10 +98,7 @@ class Settings(BaseModel):
 
     # Security
     cors_allow_origins: list[str] = Field(
-        default_factory=lambda: [
-            "https://innohassle.ru",
-            "http://localhost:3000",
-        ],
+        default_factory=lambda: ["https://innohassle.ru", "http://localhost:3000", "https://cyber.innohassle.ru"],
         description="CORS origins, used by FastAPI CORSMiddleware",
     )
 

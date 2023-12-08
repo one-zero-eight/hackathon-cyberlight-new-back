@@ -78,4 +78,10 @@ class UserRepository(SQLAlchemyRepository):
             if user:
                 return ViewUser.model_validate(user, from_attributes=True)
 
+    async def read_by_email(self, email: str) -> Optional["ViewUser"]:
+        async with self._create_session() as session:
+            q = select(User).where(User.email == email)
+            user = await session.scalar(q)
+            if user:
+                return ViewUser.model_validate(user, from_attributes=True)
     # ^^^^^^^^^^^^^^^^^^^ CRUD ^^^^^^^^^^^^^^^^^^^ #

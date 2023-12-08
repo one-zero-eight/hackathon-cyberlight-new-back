@@ -39,6 +39,21 @@ $defs:
     - testing
     title: Environment
     type: string
+  MailingTemplate:
+    properties:
+      subject:
+        description: Subject of the email
+        title: Subject
+        type: string
+      file:
+        description: Path to the template file (relative to static folder)
+        title: File
+        type: string
+    required:
+    - subject
+    - file
+    title: MailingTemplate
+    type: object
   Predefined:
     description: Predefined settings. Will be used in setup stage.
     properties:
@@ -53,6 +68,37 @@ $defs:
         title: First Superuser Password
         type: string
     title: Predefined
+    type: object
+  SMTP:
+    properties:
+      server:
+        description: SMTP server (hostname)
+        title: Server
+        type: string
+      port:
+        default: 587
+        description: SMTP port
+        title: Port
+        type: integer
+      username:
+        description: SMTP username (email)
+        title: Username
+        type: string
+      password:
+        description: SMTP password
+        format: password
+        title: Password
+        type: string
+        writeOnly: true
+      mailing_template:
+        allOf:
+        - $ref: '#/$defs/MailingTemplate'
+        description: Mailing template settings
+    required:
+    - server
+    - username
+    - password
+    title: SMTP
     type: object
   StaticFiles:
     properties:
@@ -91,6 +137,10 @@ properties:
     allOf:
     - $ref: '#/$defs/Predefined'
     description: Predefined settings
+  smtp:
+    allOf:
+    - $ref: '#/$defs/SMTP'
+    description: SMTP settings
   session_secret_key:
     description: Secret key for sessions middleware. Use 'openssl rand -hex 32' to
       generate keys
@@ -126,6 +176,7 @@ properties:
     - type: 'null'
     description: Cookies settings
 required:
+- smtp
 - session_secret_key
 - jwt_private_key
 - jwt_public_key

@@ -4,6 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from src.modules.user.schemas import CreateUser
+
 
 class VerificationResult(BaseModel):
     success: bool
@@ -23,3 +25,8 @@ class AuthCredentials(BaseModel):
 class UserCredentialsFromDB(BaseModel):
     user_id: int
     password_hash: str
+
+
+class EmailFlow(BaseModel):
+    user: CreateUser
+    code: str

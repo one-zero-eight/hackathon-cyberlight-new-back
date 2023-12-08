@@ -3,6 +3,7 @@ __all__ = ["lifespan"]
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import jinja2
 from fastapi import FastAPI
 
 from src.api.dependencies import Dependencies
@@ -11,6 +12,7 @@ from src.config_schema import Environment
 from src.modules.auth.repository import AuthRepository
 from src.modules.lesson.repository import LessonRepository
 from src.modules.lesson.schemas import CreateLesson
+from src.modules.smtp.repository import SMTPRepository
 from src.modules.user.repository import UserRepository
 from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository
 from src.storages.predefined.lessons import PredefinedLessons
@@ -26,14 +28,20 @@ async def setup_repositories():
     reward_repository = RewardRepository(storage)
     personal_account_repository = PersonalAccountRepository(storage)
     lesson_repository = LessonRepository(storage)
+    jinja2_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(settings.static_files.directory),
+        autoescape=True,
+    )
+    smtp_repository = SMTPRepository()
 
     Dependencies.set_auth_repository(auth_repository)
     Dependencies.set_storage(storage)
     Dependencies.set_user_repository(user_repository)
     Dependencies.set_personal_account_repository(personal_account_repository)
     Dependencies.set_lesson_repository(lesson_repository)
-
     Dependencies.set_reward_repository(reward_repository)
+    Dependencies.set_jinja2_env(jinja2_env)
+    Dependencies.set_smtp_repository(smtp_repository)
 
     if settings.environment == Environment.DEVELOPMENT:
         import logging

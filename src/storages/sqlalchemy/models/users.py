@@ -18,6 +18,7 @@ class User(Base, IdMixin):
     __tablename__ = "users"
 
     name: Mapped[str] = mapped_column(nullable=True)
+    email: Mapped[str] = mapped_column(nullable=True)
     login: Mapped[str] = mapped_column(unique=True)
 
     password_hash: Mapped[str] = mapped_column(nullable=False)

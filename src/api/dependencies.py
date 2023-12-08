@@ -9,28 +9,19 @@ Live Template for dependencies:
     )
 """
 
-__all__ = [
-    "DEPENDS",
-    "DEPENDS_STORAGE",
-    "DEPENDS_USER_REPOSITORY",
-    "DEPENDS_VERIFIED_REQUEST",
-    "DEPENDS_AUTH_REPOSITORY",
-    "DEPENDS_PERSONAL_ACCOUNT_REPOSITORY",
-    "DEPENDS_LESSON_REPOSITORY",
-    "Dependencies",
-]
-
 from fastapi import Depends
 
 from typing import TYPE_CHECKING
+
+from jinja2 import Environment
 
 if TYPE_CHECKING:
     from src.modules.user.repository import UserRepository
     from src.modules.auth.repository import AuthRepository
     from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository
-    from src.modules.personal_account.repository import PersonalAccountRepository
     from src.modules.lesson.repository import LessonRepository
     from src.storages.sqlalchemy.storage import SQLAlchemyStorage
+    from src.modules.smtp.repository import SMTPRepository
 
 
 class Dependencies:
@@ -39,6 +30,9 @@ class Dependencies:
     _auth_repository: "AuthRepository"
     _personal_account_repository: "PersonalAccountRepository"
     _reward_repository: "RewardRepository"
+    _lesson_repository: "LessonRepository"
+    _jinja2_env: "Environment"
+    _smtp_repository: "SMTPRepository"
 
     @classmethod
     def get_storage(cls) -> "SQLAlchemyStorage":
@@ -88,6 +82,22 @@ class Dependencies:
     def set_lesson_repository(cls, lesson_repository: "LessonRepository"):
         cls._lesson_repository = lesson_repository
 
+    @classmethod
+    def get_jinja2_env(cls) -> "Environment":
+        return cls._jinja2_env
+
+    @classmethod
+    def set_jinja2_env(cls, jinja2_env: "Environment"):
+        cls._jinja2_env = jinja2_env
+
+    @classmethod
+    def get_smtp_repository(cls) -> "SMTPRepository":
+        return cls._smtp_repository
+
+    @classmethod
+    def set_smtp_repository(cls, smtp_repository: "SMTPRepository"):
+        cls._smtp_repository = smtp_repository
+
 
 DEPENDS = Depends(lambda: Dependencies)
 """It's a dependency injection container for FastAPI.
@@ -98,6 +108,7 @@ DEPENDS_AUTH_REPOSITORY = Depends(Dependencies.get_auth_repository)
 DEPENDS_PERSONAL_ACCOUNT_REPOSITORY = Depends(Dependencies.get_personal_account_repository)
 DEPENDS_REWARD_REPOSITORY = Depends(Dependencies.get_reward_repository)
 DEPENDS_LESSON_REPOSITORY = Depends(Dependencies.get_lesson_repository)
+DEPENDS_SMTP_REPOSITORY = Depends(Dependencies.get_smtp_repository)
 
 from src.modules.auth.dependencies import verify_request  # noqa: E402
 
