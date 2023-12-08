@@ -1,5 +1,7 @@
 __all__ = ["app"]
 
+import random
+from enum import Enum
 from typing import Optional
 
 from fastapi import FastAPI, Request
@@ -56,8 +58,18 @@ if settings.cors_allow_origins:
 # Mock utilities
 if settings.environment == Environment.DEVELOPMENT:
     print("Mock utilities enabled")
-    from fastapi_mock import MockUtilities
+    from fastapi_mock import MockUtilities, ExampleProvider
 
+    class MyExampleProvider(ExampleProvider):
+        def __init__(self):
+            super().__init__()
+            self._providers = {
+                bool: lambda: bool(random.getrandbits(1)),
+                int: lambda: random.randrange(0, 100),
+                float: lambda: random.uniform(0, 100),
+                str: "Hello, World ❤️",
+                Enum: lambda enumeration: random.choice(list(enumeration.__members__.values())),
+            }
 
     class MyMock(MockUtilities):
         def _get_router_from_request(self, request: Request) -> Optional[APIRoute]:
@@ -77,8 +89,7 @@ if settings.environment == Environment.DEVELOPMENT:
                         return route
             return None
 
-
-    mock = MyMock(app, return_example_instead_of_500=True)
+    mock = MyMock(app, return_example_instead_of_500=True, example_provider=MyExampleProvider())
 
 
 # Redirect root to docs

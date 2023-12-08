@@ -13,9 +13,8 @@ from src.storages.sqlalchemy.models.personal_account import (
     PersonalAccountRewards,
     BattlePassLevels,
 )
-
-# Add all models here
 from src.storages.sqlalchemy.models.users import User
+from src.storages.sqlalchemy.models.lesson import Lesson, Task, TaskAssociation, StepType
 
 __all__ = [
     "Base",
@@ -31,4 +30,8 @@ __all__ = [
     "PersonalAccountAchievements",
     "PersonalAccountRewards",
     "BattlePassLevels",
+    "Lesson",
+    "Task",
+    "TaskAssociation",
+    "StepType",
 ]
