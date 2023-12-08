@@ -44,6 +44,7 @@ class UserRepository(SQLAlchemyRepository):
             user_dict["password_hash"] = Dependencies.get_auth_repository().get_password_hash(user.password)
             q = insert(User).values(user_dict).returning(User)
             new_user = await session.scalar(q)
+            await Dependencies.get_personal_account_repository().create(session, new_user.id)
             await session.commit()
             return ViewUser.model_validate(new_user)
 
@@ -59,6 +60,7 @@ class UserRepository(SQLAlchemyRepository):
 
             q = insert(User).values(user_dict).returning(User)
             new_user = await session.scalar(q)
+            await Dependencies.get_personal_account_repository().create(session, new_user.id)
             await session.commit()
             return ViewUser.model_validate(new_user)
 

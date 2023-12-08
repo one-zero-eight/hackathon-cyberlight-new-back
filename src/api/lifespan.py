@@ -9,6 +9,8 @@ from src.config import settings
 from src.config_schema import Environment
 from src.modules.auth.repository import AuthRepository
 from src.modules.user.repository import UserRepository
+from src.modules.personal_account.repository import PersonalAccountRepository
+
 from src.storages.sqlalchemy.storage import SQLAlchemyStorage
 
 
@@ -17,11 +19,11 @@ async def setup_repositories():
     storage = SQLAlchemyStorage(settings.database.get_async_engine())
     user_repository = UserRepository(storage)
     auth_repository = AuthRepository(storage)
-
+    personal_account_repository = PersonalAccountRepository(storage)
     Dependencies.set_auth_repository(auth_repository)
     Dependencies.set_storage(storage)
     Dependencies.set_user_repository(user_repository)
-
+    Dependencies.set_personal_account_repository(personal_account_repository)
     if settings.environment == Environment.DEVELOPMENT:
         import logging
 
