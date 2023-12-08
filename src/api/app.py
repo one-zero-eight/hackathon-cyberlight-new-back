@@ -1,6 +1,9 @@
 __all__ = ["app"]
 
+from typing import Optional
+
 from fastapi import FastAPI, Request
+from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
@@ -52,9 +55,30 @@ if settings.cors_allow_origins:
 
 # Mock utilities
 if settings.environment == Environment.DEVELOPMENT:
+    print("Mock utilities enabled")
     from fastapi_mock import MockUtilities
 
-    MockUtilities(app, return_example_instead_of_500=True)
+
+    class MyMock(MockUtilities):
+        def _get_router_from_request(self, request: Request) -> Optional[APIRoute]:
+            if self.fastapi_app is None:
+                return None
+
+            for route in self.fastapi_app.routes:
+                if isinstance(route, APIRoute):
+                    match, scope = route.matches(
+                        {
+                            "type": "http",
+                            "method": request.method,
+                            "path": request.url.path,
+                        }
+                    )
+                    if match == match.FULL:
+                        return route
+            return None
+
+
+    mock = MyMock(app, return_example_instead_of_500=True)
 
 
 # Redirect root to docs
