@@ -27,9 +27,9 @@ from src.modules.personal_account.schemas import (
     ViewAchievement,
     CreateAchievement,
     CreatePersonalAccountAchievement,
-    ViewLevel,
     ViewBattlePass,
     CreateBattlePass,
+    CreatePersonalAccountBattlePasses,
 )
 
 router = APIRouter(tags=["Personal Account"])
@@ -230,7 +230,7 @@ async def create_battle_pass(
     verification: Annotated[VerificationResult, Depends(verify_request)],
     battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
     obj: CreateBattlePass,
-) -> ViewLevel:
+) -> ViewBattlePass:
     battle_pass = await battle_pass_repository.create(obj)
     return battle_pass
 
@@ -246,7 +246,7 @@ async def create_battle_pass(
 async def set_battle_pass_to_user(
     verification: Annotated[VerificationResult, Depends(verify_request)],
     battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
-    obj: CreateBattlePass,
+    obj: CreatePersonalAccountBattlePasses,
 ) -> None:
     await battle_pass_repository.set_to_user(obj)
     return {"success": True}

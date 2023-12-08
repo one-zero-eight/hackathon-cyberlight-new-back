@@ -171,3 +171,10 @@ class LessonRepository(SQLAlchemyRepository):
                 q = insert(TaskReward).values(task_id=task.id, reward_id=reward_id, count=count)
                 await session.execute(q)
             await session.commit()
+
+    async def read_lesson_by_alias(self, alias: str) -> ViewLesson:
+        async with self._create_session() as session:
+            q = select(Lesson).where(Lesson.alias == alias)
+            obj = await session.scalar(q)
+            if obj:
+                return ViewLesson.model_validate(obj)

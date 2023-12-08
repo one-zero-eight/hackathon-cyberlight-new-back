@@ -84,6 +84,18 @@ async def get_all_lessons(
     return await lesson_repository.read_all_lessons()
 
 
+@router.get("/by-alias/{alias}")
+async def get_one_lesson_by_alias(
+    alias: str, lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
+) -> ViewLesson:
+    obj = await lesson_repository.read_lesson_by_alias(alias)
+
+    if obj is None:
+        raise ObjectNotFound()
+
+    return obj
+
+
 @router.get("/{lesson_id}")
 async def get_one_lesson(
     lesson_id: int, lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
