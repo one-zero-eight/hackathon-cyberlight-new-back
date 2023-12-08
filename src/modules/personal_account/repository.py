@@ -46,6 +46,16 @@ class PersonalAccountRepository(SQLAlchemyRepository):
             if obj:
                 return ViewPersonalAccount.model_validate(obj)
 
+    async def increase_exp(self, user_id: int, exp: int) -> None:
+        async with self._create_session() as session:
+            q = (
+                update(PersonalAccount)
+                .where(PersonalAccount.user_id == user_id)
+                .values(total_exp=PersonalAccount.total_exp + exp)
+            )
+            await session.execute(q)
+            await session.commit()
+
 
 class RewardRepository(SQLAlchemyRepository):
     async def create(self, reward_data: CreateReward) -> ViewReward:

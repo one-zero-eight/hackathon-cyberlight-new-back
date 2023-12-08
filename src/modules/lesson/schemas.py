@@ -30,7 +30,7 @@ class ViewTask(BaseModel):
         default=None, description="Correct choices for multichoice, instant, radio tasks"
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
-    reward: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
+    exp: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
     rewards_associations: Optional[list["RewardAssociation"]] = Field(default_factory=list)
 
     def check_answer(self, answer: Optional[str | list[str]]) -> bool:
@@ -64,7 +64,7 @@ class CreateTask(BaseModel):
         default=None, description="Correct choices for multichoice, instant, radio tasks"
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
-    reward: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
+    exp: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
 
 
 class UpdateTask(BaseModel):
@@ -77,7 +77,7 @@ class UpdateTask(BaseModel):
         default=None, description="Correct choices for multichoice, instant, radio tasks"
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
-    reward: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
+    exp: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
 
 
 class ViewLesson(BaseModel):

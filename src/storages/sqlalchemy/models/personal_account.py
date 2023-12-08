@@ -29,6 +29,7 @@ class PersonalAccount(Base):
     __tablename__ = "personal_account"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    total_exp: Mapped[int] = mapped_column(nullable=False, default=0)
     rewards: Mapped[Optional[list["Reward"]]] = relationship(
         "Reward", secondary="personal_account_rewards", lazy="selectin"
     )

@@ -13,6 +13,7 @@ class ViewPersonalAccount(BaseModel):
     battle_passes: Optional[list["ViewBattlePass"]] = Field(
         default_factory=list, description="List of battle passes of personal account"
     )
+    total_exp: int = Field(..., description="Total experience of personal account", examples=[0, 100, 1000])
 
 
 class ViewReward(BaseModel):

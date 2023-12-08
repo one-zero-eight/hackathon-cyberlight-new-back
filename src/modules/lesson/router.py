@@ -10,6 +10,7 @@ from src.api.dependencies import (
     DEPENDS_VERIFIED_REQUEST,
     DEPENDS_USER_REPOSITORY,
     DEPENDS_REWARD_REPOSITORY,
+    DEPENDS_PERSONAL_ACCOUNT_REPOSITORY,
 )
 from src.api.exceptions import ObjectNotFound
 from src.modules.auth.schemas import VerificationResult
@@ -23,7 +24,7 @@ from src.modules.lesson.schemas import (
     UpdateLesson,
     UpdateTask,
 )
-from src.modules.personal_account.repository import RewardRepository
+from src.modules.personal_account.repository import RewardRepository, PersonalAccountRepository
 from src.modules.user.repository import UserRepository
 
 router = APIRouter(prefix="/lessons", tags=["Lesson"])
@@ -39,6 +40,7 @@ async def solve(
     answer: TaskAnswer,
     verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
     user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    personal_account: Annotated[PersonalAccountRepository, DEPENDS_PERSONAL_ACCOUNT_REPOSITORY],
     reward_repository: Annotated[RewardRepository, DEPENDS_REWARD_REPOSITORY],
     task_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
 ) -> TaskSolveResult:
@@ -60,8 +62,10 @@ async def solve(
             verification.user_id, [(r.reward.id, r.count) for r in task.rewards_associations]
         )
         return TaskSolveResult(success=success, rewards=[r.reward.id for r in task.rewards_associations])
-    else:
-        return TaskSolveResult(success=success)
+    elif success:
+        await personal_account.increase_exp(verification.user_id, task.exp)
+
+    return TaskSolveResult(success=success)
 
 
 # ----------------- Lesson -----------------
