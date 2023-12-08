@@ -29,6 +29,18 @@ class ViewReward(BaseModel):
     )
 
 
+class CreateReward(BaseModel):
+    name: str = Field(..., description="Reward name (title)", examples=["Промокод на скидку от партнеров"])
+    content: str = Field(..., description="Reward content (useful thing)", examples=["ADASD!#412V"])
+    type: "RewardType" = Field(..., description="Type of reward", examples=["default"])
+    image: Optional[str] = Field(
+        default="", description="Image path", examples=["static/images/reward_images/reward_image.png"]
+    )
+    icon: Optional[str] = Field(
+        default="", description="Icon path", examples=["static/images/reward_icons/reward_icon.png"]
+    )
+
+
 class ViewAchievement(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

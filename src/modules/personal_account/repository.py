@@ -2,10 +2,10 @@ from typing import Optional
 
 from src.api.exceptions import ObjectNotFound
 from src.modules.auth.schemas import VerificationResult
-from src.storages.sqlalchemy.models import PersonalAccount
+from src.storages.sqlalchemy.models import PersonalAccount, Reward
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 from src.storages.sqlalchemy.utils import *
-from src.modules.personal_account.schemas import ViewPersonalAccount
+from src.modules.personal_account.schemas import ViewPersonalAccount, ViewReward, CreateReward
 
 
 class PersonalAccountRepository(SQLAlchemyRepository):
@@ -17,7 +17,31 @@ class PersonalAccountRepository(SQLAlchemyRepository):
         async with self._create_session() as session:
             q = select(PersonalAccount).where(PersonalAccount.user_id == verification.user_id)
             obj = await session.scalar(q)
-            print(obj)
             if obj:
                 return ViewPersonalAccount.model_validate(obj)
+            raise ObjectNotFound()
+
+
+class RewardRepository(SQLAlchemyRepository):
+    async def create(self, reward_data: CreateReward) -> ViewReward:
+        async with self._create_session() as session:
+            q = insert(Reward).values(reward_data.model_dump()).returning(Reward)
+            result = await session.execute(q)
+            await session.commit()
+            return ViewReward.model_validate(result)
+
+    async def read(self, _id: int) -> Optional[ViewReward]:
+        async with self._create_session() as session:
+            q = select(Reward).where(Reward.id == _id)
+            obj = await session.scalar(q)
+            if obj:
+                return ViewReward.model_validate(obj)
+            raise ObjectNotFound()
+
+    async def get_all(self) -> list[ViewReward]:
+        async with self._create_session() as session:
+            q = select(Reward)
+            objs = await session.scalars(q)
+            if objs:
+                return [ViewReward.model_validate(obj) for obj in objs]
             raise ObjectNotFound()

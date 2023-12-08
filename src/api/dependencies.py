@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.modules.user.repository import UserRepository
     from src.modules.auth.repository import AuthRepository
-    from src.modules.personal_account.repository import PersonalAccountRepository
+    from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository
     from src.storages.sqlalchemy.storage import SQLAlchemyStorage
 
 
@@ -35,6 +35,7 @@ class Dependencies:
     _user_repository: "UserRepository"
     _auth_repository: "AuthRepository"
     _personal_account_repository: "PersonalAccountRepository"
+    _reward_repository: "RewardRepository"
 
     @classmethod
     def get_storage(cls) -> "SQLAlchemyStorage":
@@ -61,6 +62,14 @@ class Dependencies:
         cls._auth_repository = auth_repository
 
     @classmethod
+    def get_reward_repository(cls) -> "RewardRepository":
+        return cls._reward_repository
+
+    @classmethod
+    def set_reward_repository(cls, reward_repository: "RewardRepository"):
+        cls._reward_repository = reward_repository
+
+    @classmethod
     def get_personal_account_repository(cls) -> "PersonalAccountRepository":
         return cls._personal_account_repository
 
@@ -76,6 +85,7 @@ DEPENDS_STORAGE = Depends(Dependencies.get_storage)
 DEPENDS_USER_REPOSITORY = Depends(Dependencies.get_user_repository)
 DEPENDS_AUTH_REPOSITORY = Depends(Dependencies.get_auth_repository)
 DEPENDS_PERSONAL_ACCOUNT_REPOSITORY = Depends(Dependencies.get_personal_account_repository)
+DEPENDS_REWARD_REPOSITORY = Depends(Dependencies.get_reward_repository)
 
 from src.modules.auth.dependencies import verify_request  # noqa: E402
 
