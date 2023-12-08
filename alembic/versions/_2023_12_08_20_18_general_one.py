@@ -1,8 +1,8 @@
 """general_one
 
-Revision ID: 8cdef8557c6e
+Revision ID: aa905a57865a
 Revises: 
-Create Date: 2023-12-08 17:04:19.697789
+Create Date: 2023-12-08 20:18:28.106854
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "8cdef8557c6e"
+revision: str = "aa905a57865a"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -57,7 +57,7 @@ def upgrade() -> None:
         "reward",
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("content", sa.String(), nullable=False),
-        sa.Column("type", sa.Enum("DEFAULT", name="rewardtype"), nullable=False),
+        sa.Column("type", sa.Enum("NONE", "XP", "ITEM", name="rewardtype"), nullable=False),
         sa.Column("image", sa.String(), nullable=True),
         sa.Column("icon", sa.String(), nullable=True),
         sa.Column("id", sa.Integer(), nullable=False),
@@ -83,6 +83,7 @@ def upgrade() -> None:
     op.create_table(
         "users",
         sa.Column("name", sa.String(), nullable=True),
+        sa.Column("email", sa.String(), nullable=True),
         sa.Column("login", sa.String(), nullable=False),
         sa.Column("password_hash", sa.String(), nullable=False),
         sa.Column("role", sa.Enum("DEFAULT", "ADMIN", name="userrole"), nullable=False),
@@ -143,6 +144,21 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("test_id", "task_id"),
     )
     op.create_table(
+        "task_rewards",
+        sa.Column("task_id", sa.Integer(), nullable=False),
+        sa.Column("reward_id", sa.Integer(), nullable=False),
+        sa.Column("count", sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["reward_id"],
+            ["reward.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["task_id"],
+            ["tasks.id"],
+        ),
+        sa.PrimaryKeyConstraint("task_id", "reward_id"),
+    )
+    op.create_table(
         "personal_account_achievements",
         sa.Column("personal_account_id", sa.Integer(), nullable=False),
         sa.Column("achievement_id", sa.Integer(), nullable=False),
@@ -175,6 +191,7 @@ def upgrade() -> None:
         "personal_account_rewards",
         sa.Column("reward_id", sa.Integer(), nullable=False),
         sa.Column("personal_account_id", sa.Integer(), nullable=False),
+        sa.Column("count", sa.Integer(), nullable=True),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["personal_account_id"],
@@ -194,6 +211,7 @@ def downgrade() -> None:
     op.drop_table("personal_account_rewards")
     op.drop_table("personal_account_battle_passes")
     op.drop_table("personal_account_achievements")
+    op.drop_table("task_rewards")
     op.drop_table("task_association")
     op.drop_table("personal_account")
     op.drop_table("level_rewards")

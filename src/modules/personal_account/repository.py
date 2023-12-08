@@ -61,8 +61,18 @@ class RewardRepository(SQLAlchemyRepository):
 
     async def set_to_personal_account(self, create_personal_account_reward: CreatePersonalAccountReward) -> None:
         async with self._create_session() as session:
-            q = insert(PersonalAccountRewards).values(create_personal_account_reward.model_dump())
-            await session.execute(q)
+            q = (
+                select(PersonalAccountRewards)
+                .where(PersonalAccountRewards.reward_id == create_personal_account_reward.reward_id)
+                .where(PersonalAccountRewards.personal_account_id == create_personal_account_reward.personal_account_id)
+            )
+            result = await session.scalar(q)
+            if result:
+                result.count += 1
+                session.add(result)
+            else:
+                q = insert(PersonalAccountRewards).values(create_personal_account_reward.model_dump())
+                await session.execute(q)
             await session.commit()
 
 

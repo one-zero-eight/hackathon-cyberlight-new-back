@@ -11,7 +11,7 @@ from src.config import settings
 from src.config_schema import Environment
 from src.modules.auth.repository import AuthRepository
 from src.modules.lesson.repository import LessonRepository
-from src.modules.lesson.schemas import CreateLesson
+from src.modules.lesson.schemas import CreateLesson, CreateTask
 from src.modules.smtp.repository import SMTPRepository
 from src.modules.user.repository import UserRepository
 from src.modules.personal_account.repository import PersonalAccountRepository, RewardRepository, AchievementRepository
@@ -71,7 +71,7 @@ async def setup_predefined():
     for lesson in predefined.lessons:
         await lesson_repository.upsert_lesson(CreateLesson.model_validate(lesson, from_attributes=True))
     for task in predefined.tasks:
-        await lesson_repository.upsert_task(task)
+        await lesson_repository.upsert_task(CreateTask.model_validate(task, from_attributes=True))
 
     for lesson in predefined.lessons:
         await lesson_repository.set_tasks_for_lesson_by_aliases(

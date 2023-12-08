@@ -15,7 +15,7 @@ class Lesson(BaseModel):
     tasks: list[str] = Field(default_factory=list, description="List of tasks aliases")
 
 
-class Reward:
+class Reward(BaseModel):
     id: int
     type: RewardType = Field(RewardType.NONE, description="Type of the reward")
     name: str
@@ -37,7 +37,7 @@ class Task(BaseModel):
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
     reward: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
-    rewards: Optional[list[Reward]] = Field(default_factory=list, description="List of rewards for the task")
+    rewards: Optional[list[int]] = Field(default_factory=list, description="List of rewards for the task")
 
 
 class PredefinedLessons(BaseModel):

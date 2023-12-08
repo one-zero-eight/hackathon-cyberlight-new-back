@@ -132,6 +132,7 @@ class PersonalAccountRewards(Base, IdMixin):
 
     reward_id: Mapped[int] = mapped_column(ForeignKey(Reward.id))
     personal_account_id: Mapped[int] = mapped_column(ForeignKey(PersonalAccount.user_id))
+    count: Mapped[int] = mapped_column(default=1, nullable=True)
 
 
 class Achievement(Base, IdMixin):

@@ -21,7 +21,7 @@ class ViewReward(BaseModel):
     id: int = Field(..., description="Obj id")
     name: str = Field(..., description="Reward name (title)", examples=["Промокод на скидку от партнеров"])
     content: str = Field(..., description="Reward content (useful thing)", examples=["ADASD!#412V"])
-    type: "RewardType" = Field(..., description="Type of reward", examples=["default"])
+    type: "RewardType" = Field(..., description="Type of reward", examples=["xp", "none", "item"])
     image: Optional[str] = Field(
         default="", description="Image path", examples=["static/images/reward_images/reward_image.png"]
     )
