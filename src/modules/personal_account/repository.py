@@ -64,7 +64,6 @@ class PersonalAccountRepository(SQLAlchemyRepository):
 """
             )
             objs = await session.execute(q)
-            print(objs)
             if objs:
                 return [ViewLeaderBoard.model_validate(obj) for obj in objs]
 
