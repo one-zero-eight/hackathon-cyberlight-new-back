@@ -6,12 +6,18 @@ import yaml
 from pydantic import BaseModel, Field
 
 from src.storages.sqlalchemy.models import StepType, RewardType
+from src.storages.sqlalchemy.models.lesson import ConditionType
 
 
 class Lesson(BaseModel):
     alias: str
     title: str
     content: str
+    condition_type: Optional[ConditionType] = ConditionType.nothing
+    recommended_level: Optional[int] = Field(default=None, description="Recommended level for the lesson")
+    min_level: Optional[int] = Field(default=None, description="Min level for the lesson")
+    reward_id: Optional[int] = Field(default=None, description="Needed reward id for the lesson")
+    battlepass_id: Optional[int] = Field(default=None, description="Battle pass id for the lesson")
     difficulty: int
     tasks: list[str] = Field(default_factory=list, description="List of tasks aliases")
 

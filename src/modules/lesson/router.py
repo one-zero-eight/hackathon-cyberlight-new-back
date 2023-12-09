@@ -52,7 +52,9 @@ async def solve(
 
     if task is None:
         raise ObjectNotFound()
-    if task.type == "input":
+    if task.type == "empty":
+        success = True
+    elif task.type == "input":
         success = task.check_answer(answer.input_answer)
     else:
         success = task.check_answer(answer.choices)

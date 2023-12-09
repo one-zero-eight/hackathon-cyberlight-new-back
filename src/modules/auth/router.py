@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 from src.api.dependencies import DEPENDS_AUTH_REPOSITORY, DEPENDS_USER_REPOSITORY, Dependencies
 from src.modules.auth.repository import TokenRepository, AuthRepository
 from src.modules.auth.schemas import AuthResult, AuthCredentials
-from src.modules.personal_account.schemas import CreatePersonalAccountAchievement
+from src.modules.personal_account.schemas import CreatePersonalAccountAchievement, CreatePersonalAccountBattlePasses
 from src.modules.user.repository import UserRepository
 from src.modules.user.schemas import CreateUser
 
@@ -39,7 +39,9 @@ async def start_registration(
 
 @router.post("/finish-registration")
 async def finish_registration(
-    email: str, code: str, auth_repository: Annotated[AuthRepository, DEPENDS_AUTH_REPOSITORY]
+    email: str,
+    code: str,
+    auth_repository: Annotated[AuthRepository, DEPENDS_AUTH_REPOSITORY],
 ):
     user = await auth_repository.finish_registration(email, code)
     token = TokenRepository.create_access_token(user.id)
@@ -52,5 +54,14 @@ async def finish_registration(
                 personal_account_id=user.id,
             )
         )
+
+    battle_pass_repository = Dependencies.get_battle_pass_repository()
+
+    await battle_pass_repository.add_to_user(
+        CreatePersonalAccountBattlePasses(
+            battle_pass_id=101,
+            personal_account_id=user.id,
+        )
+    )
 
     return AuthResult(token=token, success=True)

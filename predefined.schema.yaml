@@ -36,6 +36,10 @@ $defs:
         format: date
         title: Date Start
         type: string
+      date_end:
+        format: date
+        title: Date End
+        type: string
       levels:
         anyOf:
         - items:
@@ -52,9 +56,18 @@ $defs:
     - id
     - name
     - date_start
+    - date_end
     - is_active
     title: BattlePass
     type: object
+  ConditionType:
+    enum:
+    - nothing
+    - min_level
+    - reward
+    - battlepass
+    title: ConditionType
+    type: string
   Consultant:
     properties:
       id:
@@ -98,6 +111,39 @@ $defs:
       content:
         title: Content
         type: string
+      condition_type:
+        anyOf:
+        - $ref: '#/$defs/ConditionType'
+        - type: 'null'
+        default: nothing
+      recommended_level:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Recommended level for the lesson
+        title: Recommended Level
+      min_level:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Min level for the lesson
+        title: Min Level
+      reward_id:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Needed reward id for the lesson
+        title: Reward Id
+      battlepass_id:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Battle pass id for the lesson
+        title: Battlepass Id
       difficulty:
         title: Difficulty
         type: integer
@@ -215,6 +261,7 @@ $defs:
       type:
         allOf:
         - $ref: '#/$defs/StepType'
+        default: empty
         description: Type of the task, need for rendering and validation
       content:
         description: Content of the task
@@ -227,6 +274,13 @@ $defs:
         default: ''
         description: Title of the task
         title: Title
+      explanation:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        description: Explanation of the answer for the task
+        title: Explanation
       choices:
         anyOf:
         - items:
@@ -271,7 +325,6 @@ $defs:
         title: Rewards
     required:
     - alias
-    - type
     - content
     title: Task
     type: object
