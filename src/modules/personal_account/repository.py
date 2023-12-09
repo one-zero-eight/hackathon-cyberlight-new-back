@@ -62,7 +62,7 @@ class PersonalAccountRepository(SQLAlchemyRepository):
     async def read_leaderboard(self) -> list[ViewLeaderBoard]:
         async with self._create_session() as session:
             q = text(
-                """select personal_account.total_exp, users.name, users.id from personal_account inner join users on personal_account.user_id=users.id order by personal_account.total_exp;"""
+                """select personal_account.total_exp, users.name, users.id from personal_account inner join users on personal_account.user_id=users.id order by personal_account.total_exp desc;"""
             )
             objs = await session.execute(q)
             if objs:
@@ -320,3 +320,7 @@ class BattlePassRepository(SQLAlchemyRepository):
                 pa_bp = PersonalAccountBattlePasses(**create_personal_account_bp.model_dump())
                 session.add(pa_bp)
                 await session.commit()
+
+
+class EventRepository(SQLAlchemyRepository):
+    pass
