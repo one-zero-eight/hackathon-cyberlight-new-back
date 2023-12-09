@@ -24,6 +24,38 @@ $defs:
     - description
     title: Achievement
     type: object
+  Consultant:
+    properties:
+      id:
+        title: Id
+        type: integer
+      name:
+        title: Name
+        type: string
+      description:
+        title: Description
+        type: string
+      image:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        description: Image of the consultant
+        title: Image
+      timeslots:
+        anyOf:
+        - items:
+            $ref: '#/$defs/Timeslot'
+          type: array
+        - type: 'null'
+        description: List of timeslots for the consultant
+        title: Timeslots
+    required:
+    - id
+    - name
+    - description
+    title: Consultant
+    type: object
   Lesson:
     properties:
       alias:
@@ -181,6 +213,23 @@ $defs:
     - content
     title: Task
     type: object
+  Timeslot:
+    properties:
+      day:
+        title: Day
+        type: integer
+      start:
+        title: Start
+        type: string
+      end:
+        title: End
+        type: string
+    required:
+    - day
+    - start
+    - end
+    title: Timeslot
+    type: object
 properties:
   lessons:
     anyOf:
@@ -214,5 +263,13 @@ properties:
     - type: 'null'
     description: List of predefined achievements
     title: Achievements
-title: PredefinedLessons
+  consultants:
+    anyOf:
+    - items:
+        $ref: '#/$defs/Consultant'
+      type: array
+    - type: 'null'
+    description: List of predefined consultants
+    title: Consultants
+title: Predefined
 type: object

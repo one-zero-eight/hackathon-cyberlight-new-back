@@ -10,6 +10,8 @@ from src.api.dependencies import Dependencies
 from src.config import settings
 from src.config_schema import Environment
 from src.modules.auth.repository import AuthRepository
+from src.modules.consultation.repository import ConsultationRepository
+from src.modules.consultation.schemas import CreateTimeslot, CreateConsultant
 from src.modules.lesson.repository import LessonRepository
 from src.modules.lesson.schemas import CreateLesson, CreateTask
 from src.modules.personal_account.schemas import UpdateReward, UpdateAchievement, CreatePersonalAccountAchievement
@@ -22,7 +24,7 @@ from src.modules.personal_account.repository import (
     LevelRepository,
     BattlePassRepository,
 )
-from src.storages.predefined.storage import PredefinedLessons
+from src.storages.predefined.storage import Predefined
 
 from src.storages.sqlalchemy.storage import SQLAlchemyStorage
 
@@ -43,6 +45,7 @@ async def setup_repositories():
     achievement_repository = AchievementRepository(storage)
     level_repository = LevelRepository(storage)
     battle_pass_repository = BattlePassRepository(storage)
+    consultation_repository = ConsultationRepository(storage)
 
     Dependencies.set_auth_repository(auth_repository)
     Dependencies.set_storage(storage)
@@ -55,6 +58,7 @@ async def setup_repositories():
     Dependencies.set_smtp_repository(smtp_repository)
     Dependencies.set_level_repository(level_repository)
     Dependencies.set_battle_pass_repository(battle_pass_repository)
+    Dependencies.set_consultation_repository(consultation_repository)
 
     if settings.environment == Environment.DEVELOPMENT:
         import logging
@@ -79,10 +83,23 @@ async def setup_predefined():
             password=settings.predefined.first_superuser_password,
         )
 
-    predefined: PredefinedLessons = PredefinedLessons.from_yaml(Path("predefined.yaml"))
+    predefined: Predefined = Predefined.from_yaml(Path("predefined.yaml"))
     lesson_repository = Dependencies.get_lesson_repository()
     reward_repository = Dependencies.get_reward_repository()
     achievement_repository = Dependencies.get_achievement_repository()
+    consultation_repository = Dependencies.get_consultation_repository()
+
+    for consultant in predefined.consultants:
+        db_consultant = await consultation_repository.read_consultant(consultant.id)
+        if not db_consultant:
+            await consultation_repository.create_consultant(
+                CreateConsultant.model_validate(consultant, from_attributes=True), consultant_id=consultant.id
+            )
+
+        await consultation_repository.set_timeslots(
+            consultant.id,
+            [CreateTimeslot.model_validate(timeslot, from_attributes=True) for timeslot in consultant.timeslots],
+        )
 
     for reward in predefined.rewards:
         db_reward = await reward_repository.read(reward.id)

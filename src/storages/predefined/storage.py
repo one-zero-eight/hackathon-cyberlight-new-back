@@ -50,13 +50,29 @@ class Achievement(BaseModel):
     image: Optional[str] = Field(default=None, description="Image of the achievement")
 
 
-class PredefinedLessons(BaseModel):
+class Consultant(BaseModel):
+    class Timeslot(BaseModel):
+        day: int
+        start: str
+        end: str
+
+    id: int
+    name: str
+    description: str
+    image: Optional[str] = Field(default=None, description="Image of the consultant")
+    timeslots: Optional[list["Timeslot"]] = Field(
+        default_factory=list, description="List of timeslots for the consultant"
+    )
+
+
+class Predefined(BaseModel):
     lessons: Optional[list[Lesson]] = Field(default_factory=list, description="List of predefined lessons")
     tasks: Optional[list[Task]] = Field(default_factory=list, description="List of predefined tasks")
     rewards: Optional[list[Reward]] = Field(default_factory=list, description="List of predefined rewards")
     achievements: Optional[list[Achievement]] = Field(
         default_factory=list, description="List of predefined achievements"
     )
+    consultants: Optional[list[Consultant]] = Field(default_factory=list, description="List of predefined consultants")
 
     @classmethod
     def save_schema(cls, path: Path) -> None:

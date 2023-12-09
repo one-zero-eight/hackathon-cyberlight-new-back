@@ -15,6 +15,7 @@ from src.storages.sqlalchemy.models.personal_account import (
 )
 from src.storages.sqlalchemy.models.users import User, UserTaskAnswer
 from src.storages.sqlalchemy.models.lesson import Lesson, Task, TaskAssociation, StepType
+from src.storages.sqlalchemy.models.consultation import Consultant, Timeslot, Appointment
 
 __all__ = [
     "Base",
@@ -35,4 +36,7 @@ __all__ = [
     "Task",
     "TaskAssociation",
     "StepType",
+    "Consultant",
+    "Timeslot",
+    "Appointment",
 ]

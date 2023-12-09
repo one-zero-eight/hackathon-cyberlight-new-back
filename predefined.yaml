@@ -1,4 +1,16 @@
 $schema: "./predefined.schema.yaml"
+consultants:
+  - id: 1001
+    name: "Антон"
+    description: "Специалист по кибербезопаности"
+    image: "static/anton.jpg"
+    timeslots:
+      - day: 1
+        start: "10:00"
+        end: "12:00"
+      - day: 1
+        start: "14:00"
+        end: "16:00"
 lessons:
   - alias: welcome
     title: Добро пожаловать!
