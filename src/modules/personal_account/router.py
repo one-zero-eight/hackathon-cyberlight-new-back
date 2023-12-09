@@ -31,6 +31,7 @@ from src.modules.personal_account.schemas import (
     CreateBattlePass,
     CreatePersonalAccountBattlePasses,
     ViewLeaderBoard,
+    ViewPersonalAccountBattlePass,
 )
 
 router = APIRouter(tags=["Personal Account"])
@@ -50,6 +51,22 @@ async def get_my_personal_account(
 ) -> ViewPersonalAccount:
     personal_account = await personal_account_repository.read(verification)
     return personal_account
+
+
+@router.get(
+    "/personal_account/battle-passes",
+    responses={
+        200: {"description": "My battle passes"},
+        **IncorrectCredentialsException.responses,
+        **NoCredentialsException.responses,
+    },
+)
+async def get_my_battle_passes(
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    personal_account_repository: Annotated[PersonalAccountRepository, DEPENDS_PERSONAL_ACCOUNT_REPOSITORY],
+) -> list[ViewPersonalAccountBattlePass]:
+    battle_passes = await personal_account_repository.read_my_battle_passes(verification)
+    return battle_passes
 
 
 @router.get(

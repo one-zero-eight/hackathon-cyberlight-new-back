@@ -10,9 +10,6 @@ class ViewPersonalAccount(BaseModel):
     user_id: int = Field(..., description="Owner User ID", examples=[0])
     rewards: Optional[list["ViewReward"]] = Field(default_factory=list, description="List of rewards")
     achievements: Optional[list["ViewAchievement"]] = Field(default_factory=list, description="List of achievements")
-    battle_passes: Optional[list["ViewBattlePass"]] = Field(
-        default_factory=list, description="List of battle passes of personal account"
-    )
     total_exp: int = Field(..., description="Total experience of personal account", examples=[0, 100, 1000])
 
 
@@ -130,8 +127,10 @@ class CreateBattlePassLevel(BaseModel):
     level_id: int = Field(..., description="Level id")
 
 
-class BattlePassExperience(BaseModel):
+class ViewPersonalAccountBattlePass(BaseModel):
     experience: int = Field(..., description="Experience of current battle pass", examples=[10, 77, 1882])
+    battle_pass_id: int = Field(..., description="Battle pass id")
+    personal_account_id: int = Field(..., description="Personal Account ID")
 
 
 class ViewLeaderBoard(BaseModel):

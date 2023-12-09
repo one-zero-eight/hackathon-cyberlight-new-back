@@ -32,6 +32,7 @@ from src.modules.personal_account.schemas import (
     UpdateAchievement,
     CreatePersonalAccountAchievement,
     ViewLeaderBoard,
+    ViewPersonalAccountBattlePass,
 )
 
 
@@ -66,6 +67,15 @@ class PersonalAccountRepository(SQLAlchemyRepository):
             objs = await session.execute(q)
             if objs:
                 return [ViewLeaderBoard.model_validate(obj) for obj in objs]
+
+    async def read_my_battle_passes(self, verification: VerificationResult) -> list[ViewPersonalAccountBattlePass]:
+        async with self._create_session() as session:
+            q = select(PersonalAccountBattlePasses).where(
+                PersonalAccountBattlePasses.personal_account_id == verification.user_id
+            )
+            objs = await session.scalars(q)
+            if objs:
+                return [ViewPersonalAccountBattlePass.model_validate(obj) for obj in objs]
 
 
 class RewardRepository(SQLAlchemyRepository):

@@ -37,7 +37,11 @@ class PersonalAccount(Base):
         "Achievement", secondary="personal_account_achievements", lazy="selectin"
     )
     battle_passes: Mapped[Optional[list["BattlePass"]]] = relationship(
-        "BattlePass", secondary="personal_account_battle_passes", lazy="selectin"
+        "BattlePass",
+        secondary="personal_account_battle_passes",
+        lazy="selectin",
+        viewonly=True,
+        secondaryjoin="and_(BattlePass.id == PersonalAccountBattlePasses.battle_pass_id)",
     )
 
 
