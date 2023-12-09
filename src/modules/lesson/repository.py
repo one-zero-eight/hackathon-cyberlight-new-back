@@ -3,6 +3,7 @@ __all__ = ["LessonRepository"]
 from typing import Optional
 
 from src.modules.lesson.schemas import ViewLesson, CreateLesson, CreateTask, ViewTask, UpdateLesson, UpdateTask
+from src.storages.sqlalchemy.models import UserTaskAnswer
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 from src.storages.sqlalchemy.models.lesson import Lesson, Task, TaskAssociation, TaskReward
 from src.storages.sqlalchemy.utils import *
@@ -87,12 +88,26 @@ class LessonRepository(SQLAlchemyRepository):
                 await session.execute(q)
             await session.commit()
 
-    async def read_all_tasks_for_lesson(self, lesson_id: int) -> list[ViewTask]:
+    async def get_all_tasks_for_lesson(self, lesson_id: int) -> list[ViewTask]:
         async with self._create_session() as session:
             q = (
                 select(Task)
                 .join(TaskAssociation, TaskAssociation.task_id == Task.id)
                 .where(TaskAssociation.test_id == lesson_id)
+                .order_by(TaskAssociation.order)
+            )
+            objs = await session.scalars(q)
+            return [ViewTask.model_validate(obj) for obj in objs]
+
+    async def get_solved_tasks_for_lesson(self, user_id: int, lesson_id: int) -> list[ViewTask]:
+        async with self._create_session() as session:
+            q = (
+                select(Task)
+                .join(TaskAssociation, TaskAssociation.task_id == Task.id)
+                .join(UserTaskAnswer, UserTaskAnswer.task_id == Task.id)
+                .where(UserTaskAnswer.user_id == user_id)
+                .where(TaskAssociation.test_id == lesson_id)
+                .where(UserTaskAnswer.is_correct)
                 .order_by(TaskAssociation.order)
             )
             objs = await session.scalars(q)

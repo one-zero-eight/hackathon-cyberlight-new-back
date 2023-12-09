@@ -26,6 +26,7 @@ from src.modules.lesson.schemas import (
 )
 from src.modules.personal_account.repository import RewardRepository, PersonalAccountRepository
 from src.modules.user.repository import UserRepository
+from src.storages.sqlalchemy.models.lesson import ConditionType
 
 router = APIRouter(prefix="/lessons", tags=["Lesson"])
 
@@ -71,16 +72,46 @@ async def solve(
 class LessonProgress(BaseModel):
     lesson_id: int
     is_available: bool = False
-    percentage: float = 0.0
+    solved_tasks: int
+    total_tasks: int
 
 
 @router.get("/my-progress")
 async def get_my_progress(
     verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
     user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
-    personal_account: Annotated[PersonalAccountRepository, DEPENDS_PERSONAL_ACCOUNT_REPOSITORY],
-) -> list[ViewLesson]:
-    ...
+    lessons_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
+    personal_account_repository: Annotated[PersonalAccountRepository, DEPENDS_PERSONAL_ACCOUNT_REPOSITORY],
+) -> list[LessonProgress]:
+    user = await user_repository.read(verification.user_id)
+    if user is None:
+        raise ObjectNotFound()
+
+    personal_account = await personal_account_repository.read(verification)
+    level = personal_account.total_exp / 100
+    lessons = await lessons_repository.read_all_lessons()
+
+    result = []
+    for lesson in lessons:
+        if lesson.condition_type == ConditionType.nothing:
+            available = True
+        elif lesson.condition_type == ConditionType.min_level:
+            available = level >= lesson.condition_value
+        else:
+            # TODO: Checks for rewards and battlepass
+            available = False
+        all_tasks = len(await lessons_repository.get_all_tasks_for_lesson(lesson.id))
+        solved_tasks = len(await lessons_repository.get_solved_tasks_for_lesson(user.user_id, lesson.id))
+        result.append(
+            LessonProgress(
+                lesson_id=lesson.id,
+                is_available=available,
+                solved_tasks=solved_tasks,
+                total_tasks=all_tasks,
+            )
+        )
+
+    return result
 
 
 # ----------------- Lesson -----------------
@@ -135,7 +166,7 @@ async def put_lesson(
 async def get_tasks_for_lesson(
     lesson_id: int, lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
 ) -> list[ViewTask]:
-    return await lesson_repository.read_all_tasks_for_lesson(lesson_id)
+    return await lesson_repository.get_all_tasks_for_lesson(lesson_id)
 
 
 @router.put("/{lesson_id}/tasks", status_code=201)
