@@ -71,6 +71,7 @@ async def solve(
 class LessonProgress(BaseModel):
     lesson_id: int
     is_available: bool = False
+    percentage: float = 0.0
 
 
 @router.get("/my-progress")

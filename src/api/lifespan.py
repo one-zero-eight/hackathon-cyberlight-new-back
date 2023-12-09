@@ -14,7 +14,14 @@ from src.modules.consultation.repository import ConsultationRepository
 from src.modules.consultation.schemas import CreateTimeslot, CreateConsultant
 from src.modules.lesson.repository import LessonRepository
 from src.modules.lesson.schemas import CreateLesson, CreateTask
-from src.modules.personal_account.schemas import UpdateReward, UpdateAchievement, CreatePersonalAccountAchievement
+from src.modules.personal_account.schemas import (
+    UpdateReward,
+    UpdateAchievement,
+    CreatePersonalAccountAchievement,
+    CreateBattlePass,
+    CreateLevel,
+    CreatePersonalAccountBattlePasses,
+)
 from src.modules.smtp.repository import SMTPRepository
 from src.modules.user.repository import UserRepository
 from src.modules.personal_account.repository import (
@@ -88,7 +95,8 @@ async def setup_predefined():
     reward_repository = Dependencies.get_reward_repository()
     achievement_repository = Dependencies.get_achievement_repository()
     consultation_repository = Dependencies.get_consultation_repository()
-
+    battle_pass_repository = Dependencies.get_battle_pass_repository()
+    level_repository = Dependencies.get_level_repository()
     for consultant in predefined.consultants:
         db_consultant = await consultation_repository.read_consultant(consultant.id)
         if not db_consultant:
@@ -133,6 +141,28 @@ async def setup_predefined():
         await lesson_repository.upsert_lesson(CreateLesson.model_validate(lesson, from_attributes=True))
         await lesson_repository.set_tasks_for_lesson_by_aliases(
             lesson.alias, [task_alias for task_alias in lesson.tasks]
+        )
+
+    for battlepass in predefined.battle_passes:
+        db_battlepass = await battle_pass_repository.read(battlepass.id)
+        if not db_battlepass:
+            await battle_pass_repository.create(
+                id_=battlepass.id, battle_pass_data=CreateBattlePass.model_validate(battlepass, from_attributes=True)
+            )
+            for level in battlepass.levels:
+                db_level = await level_repository.create(
+                    CreateLevel(
+                        battle_pass_id=battlepass.id,
+                        experience=level.experience,
+                        value=level.value,
+                    )
+                )
+                await reward_repository.set_rewards_to_level(db_level.id, [reward_id for reward_id in level.rewards])
+        await battle_pass_repository.set_to_user(
+            CreatePersonalAccountBattlePasses(
+                battle_pass_id=battlepass.id,
+                personal_account_id=superuser.id,
+            )
         )
 
 

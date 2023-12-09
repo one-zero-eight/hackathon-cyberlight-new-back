@@ -1,3 +1,4 @@
+import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -65,6 +66,23 @@ class Consultant(BaseModel):
     )
 
 
+class BattlePass(BaseModel):
+    class Level(BaseModel):
+        experience: int = Field(
+            ..., description="Amount of experience needed to reach this level", examples=[100, 1000, 10000]
+        )
+        value: int = Field(..., description="Level value: the first, the second...", examples=[1, 2, 3, 4, 5])
+        rewards: list[int] = Field(default_factory=list, description="List of rewards for the reaching current level")
+
+    id: int
+    name: str
+    date_start: datetime.date
+    levels: Optional[list["Level"]] = Field(
+        default_factory=list, description="List of levels set to current battle pass"
+    )
+    is_active: bool = Field(..., description="Is current battle pass active for users")
+
+
 class Predefined(BaseModel):
     lessons: Optional[list[Lesson]] = Field(default_factory=list, description="List of predefined lessons")
     tasks: Optional[list[Task]] = Field(default_factory=list, description="List of predefined tasks")
@@ -73,6 +91,9 @@ class Predefined(BaseModel):
         default_factory=list, description="List of predefined achievements"
     )
     consultants: Optional[list[Consultant]] = Field(default_factory=list, description="List of predefined consultants")
+    battle_passes: Optional[list[BattlePass]] = Field(
+        default_factory=list, description="List of predefined battle passes"
+    )
 
     @classmethod
     def save_schema(cls, path: Path) -> None:

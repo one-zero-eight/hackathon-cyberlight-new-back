@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -51,6 +52,8 @@ class ViewBattlePass(BaseModel):
     levels: Optional[list["ViewLevel"]] = Field(
         default_factory=list, description="List of levels set to current battle pass"
     )
+    name: str = Field(..., description="Battle pass name (title)", examples=["Анонимус"])
+    date_start: datetime.date = Field(..., description="Date start of the battle pass", examples=["2021-01-01"])
     is_active: bool = Field(..., description="Is current battle pass active for users", examples=[True, False])
 
 
@@ -58,6 +61,7 @@ class ViewLevel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., description="Obj id")
+    battle_pass_id: int = Field(..., description="Battle pass id")
     experience: int = Field(
         ..., description="Amount of experience needed to reach this level", examples=[100, 1000, 10000]
     )
@@ -112,10 +116,9 @@ class CreatePersonalAccountAchievement(BaseModel):
 
 
 class CreateBattlePass(BaseModel):
-    levels: Optional[list["ViewLevel"]] = Field(
-        default_factory=list, description="List of levels set to current battle pass"
-    )
     is_active: bool = Field(..., description="Is current battle pass active for users", examples=[True, False])
+    name: str = Field(..., description="Battle pass name (title)", examples=["Анонимус"])
+    date_start: datetime.date = Field(..., description="Date start of the battle pass", examples=["2021-01-01"])
 
 
 class CreatePersonalAccountBattlePasses(BaseModel):
@@ -124,15 +127,11 @@ class CreatePersonalAccountBattlePasses(BaseModel):
 
 
 class CreateLevel(BaseModel):
+    battle_pass_id: int = Field(..., description="Battle pass id")
     experience: int = Field(
         ..., description="Amount of experience needed to reach this level", examples=[100, 1000, 10000]
     )
     value: int = Field(..., description="Level value: the first, the second...", examples=[1, 2, 3, 4, 5])
-
-
-class CreateBattlePassLevel(BaseModel):
-    battle_pass_id: int = Field(..., description="Battle pass id")
-    level_id: int = Field(..., description="Level id")
 
 
 class ViewPersonalAccountBattlePass(BaseModel):

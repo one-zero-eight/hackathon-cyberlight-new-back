@@ -9,11 +9,13 @@ __all__ = [
     "Achievement",
     "PersonalAccountAchievements",
     "PersonalAccountRewards",
-    "BattlePassLevels",
 ]
 
+import datetime
 from enum import StrEnum
 from typing import Optional
+
+from sqlalchemy import Date
 
 from src.storages.sqlalchemy.models.base import Base
 from src.storages.sqlalchemy.models.__mixin__ import IdMixin
@@ -52,7 +54,9 @@ class BattlePass(Base, IdMixin):
 
     __tablename__ = "battle_pass"
 
-    levels: Mapped[Optional[list["Level"]]] = relationship("Level", secondary="battle_pass_levels", lazy="selectin")
+    name: Mapped[str] = mapped_column(nullable=False)
+    date_start: Mapped[datetime.date] = mapped_column(Date(), nullable=False)
+    levels: Mapped[Optional[list["Level"]]] = relationship("Level", lazy="selectin")
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
 
 
@@ -76,20 +80,10 @@ class Level(Base, IdMixin):
 
     __tablename__ = "level"
 
+    battle_pass_id: Mapped[int] = mapped_column(ForeignKey(BattlePass.id), nullable=False)
     experience: Mapped[int] = mapped_column(nullable=False)  # необходимое кол-во экспы для уровня
     value: Mapped[int] = mapped_column(nullable=False)  # порядковый номер уровня (первый, второй, и т.д.)
     rewards: Mapped[Optional[list["Reward"]]] = relationship("Reward", secondary="level_rewards", lazy="selectin")
-
-
-class BattlePassLevels(Base):
-    """
-    Связка БП и Левелов
-    """
-
-    __tablename__ = "battle_pass_levels"
-
-    battle_pass_id: Mapped[int] = mapped_column(ForeignKey(BattlePass.id), primary_key=True)
-    level_id: Mapped[int] = mapped_column(ForeignKey(Level.id), primary_key=True)
 
 
 class RewardType(StrEnum):

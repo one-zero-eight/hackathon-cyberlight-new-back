@@ -28,6 +28,24 @@ lessons:
       - task8
       - task9
 
+battle_passes:
+  - id: 101
+    is_active: true
+    name: Открытие Кибер.Базы
+    date_start: "2023-12-09"
+    levels:
+      - value: 1
+        experience: 100
+        rewards:
+          - 100000002
+      - value: 2
+        experience: 200
+      - value: 3
+        experience: 300
+      - value: 4
+        experience: 400
+
+
 tasks:
   - alias: task1
     type: radio

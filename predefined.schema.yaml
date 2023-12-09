@@ -24,6 +24,37 @@ $defs:
     - description
     title: Achievement
     type: object
+  BattlePass:
+    properties:
+      id:
+        title: Id
+        type: integer
+      name:
+        title: Name
+        type: string
+      date_start:
+        format: date
+        title: Date Start
+        type: string
+      levels:
+        anyOf:
+        - items:
+            $ref: '#/$defs/Level'
+          type: array
+        - type: 'null'
+        description: List of levels set to current battle pass
+        title: Levels
+      is_active:
+        description: Is current battle pass active for users
+        title: Is Active
+        type: boolean
+    required:
+    - id
+    - name
+    - date_start
+    - is_active
+    title: BattlePass
+    type: object
   Consultant:
     properties:
       id:
@@ -82,6 +113,37 @@ $defs:
     - content
     - difficulty
     title: Lesson
+    type: object
+  Level:
+    properties:
+      experience:
+        description: Amount of experience needed to reach this level
+        examples:
+        - 100
+        - 1000
+        - 10000
+        title: Experience
+        type: integer
+      value:
+        description: 'Level value: the first, the second...'
+        examples:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        title: Value
+        type: integer
+      rewards:
+        description: List of rewards for the reaching current level
+        items:
+          type: integer
+        title: Rewards
+        type: array
+    required:
+    - experience
+    - value
+    title: Level
     type: object
   Reward:
     properties:
@@ -271,5 +333,13 @@ properties:
     - type: 'null'
     description: List of predefined consultants
     title: Consultants
+  battle_passes:
+    anyOf:
+    - items:
+        $ref: '#/$defs/BattlePass'
+      type: array
+    - type: 'null'
+    description: List of predefined battle passes
+    title: Battle Passes
 title: Predefined
 type: object

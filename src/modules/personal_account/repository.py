@@ -10,9 +10,9 @@ from src.storages.sqlalchemy.models import (
     Achievement,
     PersonalAccountAchievements,
     Level,
-    BattlePassLevels,
     BattlePass,
     PersonalAccountBattlePasses,
+    LevelRewards,
 )
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 from src.storages.sqlalchemy.utils import *
@@ -25,7 +25,6 @@ from src.modules.personal_account.schemas import (
     CreateAchievement,
     ViewLevel,
     CreateLevel,
-    CreateBattlePassLevel,
     ViewBattlePass,
     CreateBattlePass,
     CreatePersonalAccountBattlePasses,
@@ -63,8 +62,7 @@ class PersonalAccountRepository(SQLAlchemyRepository):
     async def read_leaderboard(self) -> list[ViewLeaderBoard]:
         async with self._create_session() as session:
             q = text(
-                """select personal_account.total_exp, users.name, users.id from personal_account inner join users on personal_account.user_id=users.id order by personal_account.total_exp;
-"""
+                """select personal_account.total_exp, users.name, users.id from personal_account inner join users on personal_account.user_id=users.id order by personal_account.total_exp;"""
             )
             objs = await session.execute(q)
             if objs:
@@ -77,7 +75,7 @@ class PersonalAccountRepository(SQLAlchemyRepository):
                 .join(BattlePass)
                 .filter(
                     and_(
-                        BattlePass.is_active == True,
+                        BattlePass.is_active,
                         PersonalAccountBattlePasses.personal_account_id == verification.user_id,
                     )
                 )
@@ -160,6 +158,15 @@ class RewardRepository(SQLAlchemyRepository):
                         )
                         await session.execute(q)
                 await session.commit()
+
+    async def set_rewards_to_level(self, level_id: int, rewards: list[int]) -> None:
+        async with self._create_session() as session:
+            q = delete(LevelRewards).where(LevelRewards.level_id == level_id)
+            await session.execute(q)
+            for reward_id in rewards:
+                q = insert(LevelRewards).values(level_id=level_id, reward_id=reward_id)
+                await session.execute(q)
+            await session.commit()
 
 
 class AchievementRepository(SQLAlchemyRepository):
@@ -259,12 +266,6 @@ class LevelRepository(SQLAlchemyRepository):
             if obj:
                 return ViewLevel.model_validate(obj)
 
-    async def set_to_battle_pass(self, create_battle_pass_level: CreateBattlePassLevel) -> None:
-        async with self._create_session() as session:
-            q = insert(BattlePassLevels).values(create_battle_pass_level.model_dump())
-            await session.execute(q)
-            await session.commit()
-
     async def get_all(self) -> list[ViewLevel]:
         async with self._create_session() as session:
             q = select(Level)
@@ -274,9 +275,12 @@ class LevelRepository(SQLAlchemyRepository):
 
 
 class BattlePassRepository(SQLAlchemyRepository):
-    async def create(self, battle_pass_data: CreateBattlePass) -> ViewBattlePass:
+    async def create(self, battle_pass_data: CreateBattlePass, id_: Optional[int] = None) -> ViewBattlePass:
         async with self._create_session() as session:
-            obj = BattlePass(**battle_pass_data.model_dump())
+            dct = battle_pass_data.model_dump()
+            if id_ is not None:
+                dct["id"] = id_
+            obj = BattlePass(**dct)
             session.add(obj)
             await session.commit()
             q = select(BattlePass).where(BattlePass.id == obj.id)
@@ -289,6 +293,12 @@ class BattlePassRepository(SQLAlchemyRepository):
             obj = await session.scalar(q)
             if obj:
                 return ViewBattlePass.model_validate(obj)
+
+    async def delete(self, _id: int) -> None:
+        async with self._create_session() as session:
+            q = delete(BattlePass).where(BattlePass.id == _id)
+            await session.execute(q)
+            await session.commit()
 
     async def get_all(self) -> list[ViewBattlePass]:
         async with self._create_session() as session:

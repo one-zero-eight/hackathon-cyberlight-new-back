@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.modules.personal_account.schemas import ViewReward
-from src.storages.sqlalchemy.models.lesson import StepType
+from src.storages.sqlalchemy.models.lesson import StepType, ConditionType
 
 
 class TaskAnswer(BaseModel):
@@ -90,12 +90,24 @@ class ViewLesson(BaseModel):
     difficulty: int = Field(..., description="Difficulty of the lesson", gt=-1, lt=10, examples=[5])
     tasks: list["ViewTask"] = Field(..., description="Tasks of the lesson (sorted by order)")
 
+    condition_type: ConditionType = Field(..., description="Type of condition for lesson")
+    recommended_level: Optional[int] = Field(None, description="Recommended level for lesson")
+    min_level: Optional[int] = Field(None, description="Min level for lesson")
+    reward_id: Optional[int] = Field(None, description="Needed reward id for lesson")
+    battlepass_id: Optional[int] = Field(None, description="Battle pass id for lesson")
+
 
 class CreateLesson(BaseModel):
     alias: str = Field(..., description="Alias of the lesson")
     title: Optional[str] = Field("", description="Title of the lesson")
     content: str = Field(..., description="Content of the lesson")
     difficulty: int = Field(..., description="Difficulty of the lesson", gt=-1, lt=10, examples=[5])
+
+    condition_type: ConditionType = Field(ConditionType.nothing, description="Type of condition for lesson")
+    recommended_level: Optional[int] = Field(None, description="Recommended level for lesson")
+    min_level: Optional[int] = Field(None, description="Min level for lesson")
+    reward_id: Optional[int] = Field(None, description="Needed reward id for lesson")
+    battlepass_id: Optional[int] = Field(None, description="Battle pass id for lesson")
 
 
 class UpdateLesson(BaseModel):
