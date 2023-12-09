@@ -77,6 +77,7 @@ class BattlePass(BaseModel):
     id: int
     name: str
     date_start: datetime.date
+    date_end: datetime.date
     levels: Optional[list["Level"]] = Field(
         default_factory=list, description="List of levels set to current battle pass"
     )

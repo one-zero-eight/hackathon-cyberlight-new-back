@@ -56,6 +56,7 @@ class BattlePass(Base, IdMixin):
 
     name: Mapped[str] = mapped_column(nullable=False)
     date_start: Mapped[datetime.date] = mapped_column(Date(), nullable=False)
+    date_end: Mapped[datetime.date] = mapped_column(Date(), nullable=False)
     levels: Mapped[Optional[list["Level"]]] = relationship("Level", lazy="selectin")
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
 

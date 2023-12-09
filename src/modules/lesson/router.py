@@ -45,10 +45,10 @@ async def solve(
     user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
     personal_account: Annotated[PersonalAccountRepository, DEPENDS_PERSONAL_ACCOUNT_REPOSITORY],
     reward_repository: Annotated[RewardRepository, DEPENDS_REWARD_REPOSITORY],
-    task_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
+    lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
     battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
 ) -> TaskSolveResult:
-    task = await task_repository.read_task(answer.task_id)
+    task = await lesson_repository.read_task(answer.task_id)
 
     if task is None:
         raise ObjectNotFound()
@@ -57,9 +57,15 @@ async def solve(
     else:
         success = task.check_answer(answer.choices)
 
+    # check for any correct submissions
+    solved_already = await lesson_repository.is_solved_task(verification.user_id, answer.task_id)
+
     await user_repository.submit_answer_for_task(
         user_id=verification.user_id, lesson_id=answer.lesson_id, task_id=answer.task_id, is_correct=success
     )
+
+    if solved_already:
+        return TaskSolveResult(success=True)
 
     if success:
         if task.rewards_associations:
@@ -188,6 +194,13 @@ async def post_task(
 ) -> ViewTask:
     obj = await lesson_repository.create_task(data)
     return obj
+
+
+@router.get("/tasks/by-alias/{alias}")
+async def get_one_task_by_alias(
+    alias: str, lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
+) -> ViewTask:
+    return await lesson_repository.read_task_by_alias(alias)
 
 
 @router.get("/tasks/{task_id}")

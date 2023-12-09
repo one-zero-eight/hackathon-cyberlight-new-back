@@ -200,3 +200,17 @@ class LessonRepository(SQLAlchemyRepository):
             obj = await session.scalar(q)
             if obj:
                 return ViewLesson.model_validate(obj)
+
+    async def is_solved_task(self, user_id: int, task_id) -> bool:
+        async with self._create_session() as session:
+            q = select(UserTaskAnswer).where(
+                and_(
+                    UserTaskAnswer.user_id == user_id,
+                    UserTaskAnswer.task_id == task_id,
+                    UserTaskAnswer.is_correct,
+                )
+            )
+            obj = await session.scalar(q)
+            if obj:
+                return True
+            return False

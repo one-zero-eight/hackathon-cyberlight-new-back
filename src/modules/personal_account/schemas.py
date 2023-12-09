@@ -54,6 +54,7 @@ class ViewBattlePass(BaseModel):
     )
     name: str = Field(..., description="Battle pass name (title)", examples=["Анонимус"])
     date_start: datetime.date = Field(..., description="Date start of the battle pass", examples=["2021-01-01"])
+    date_end: datetime.date = Field(..., description="Date end of the battle pass", examples=["2021-01-01"])
     is_active: bool = Field(..., description="Is current battle pass active for users", examples=[True, False])
 
 
@@ -119,6 +120,7 @@ class CreateBattlePass(BaseModel):
     is_active: bool = Field(..., description="Is current battle pass active for users", examples=[True, False])
     name: str = Field(..., description="Battle pass name (title)", examples=["Анонимус"])
     date_start: datetime.date = Field(..., description="Date start of the battle pass", examples=["2021-01-01"])
+    date_end: datetime.date = Field(..., description="Date end of the battle pass", examples=["2021-01-01"])
 
 
 class CreatePersonalAccountBattlePasses(BaseModel):
