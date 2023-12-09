@@ -136,6 +136,8 @@ class CreateBattlePassLevel(BaseModel):
 
 
 class ViewPersonalAccountBattlePass(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     experience: int = Field(..., description="Experience of current battle pass", examples=[10, 77, 1882])
     battle_pass_id: int = Field(..., description="Battle pass id")
     personal_account_id: int = Field(..., description="Personal Account ID")

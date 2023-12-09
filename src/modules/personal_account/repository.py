@@ -1,5 +1,6 @@
 from typing import Optional
 
+from src.api.exceptions import ObjectNotFound
 from src.modules.auth.schemas import VerificationResult
 
 from src.storages.sqlalchemy.models import (
@@ -69,14 +70,23 @@ class PersonalAccountRepository(SQLAlchemyRepository):
             if objs:
                 return [ViewLeaderBoard.model_validate(obj) for obj in objs]
 
-    async def read_my_battle_passes(self, verification: VerificationResult) -> list[ViewPersonalAccountBattlePass]:
+    async def read_my_battle_pass(self, verification: VerificationResult) -> ViewPersonalAccountBattlePass:
         async with self._create_session() as session:
-            q = select(PersonalAccountBattlePasses).where(
-                PersonalAccountBattlePasses.personal_account_id == verification.user_id
+            q = (
+                select(PersonalAccountBattlePasses)
+                .join(BattlePass)
+                .filter(
+                    and_(
+                        BattlePass.is_active == True,
+                        PersonalAccountBattlePasses.personal_account_id == verification.user_id,
+                    )
+                )
+                .limit(1)
             )
-            objs = await session.scalars(q)
-            if objs:
-                return [ViewPersonalAccountBattlePass.model_validate(obj) for obj in objs]
+            obj = await session.scalar(q)
+            if obj is not None:
+                return ViewPersonalAccountBattlePass.model_validate(obj)
+            raise ObjectNotFound()
 
 
 class RewardRepository(SQLAlchemyRepository):

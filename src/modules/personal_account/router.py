@@ -55,18 +55,18 @@ async def get_my_personal_account(
 
 
 @router.get(
-    "/personal_account/battle-passes",
+    "/personal_account/battle-pass",
     responses={
-        200: {"description": "My battle passes"},
+        200: {"description": "My battle pass"},
         **IncorrectCredentialsException.responses,
         **NoCredentialsException.responses,
     },
 )
-async def get_my_battle_passes(
+async def get_my_battle_pass(
     verification: Annotated[VerificationResult, Depends(verify_request)],
     personal_account_repository: Annotated[PersonalAccountRepository, DEPENDS_PERSONAL_ACCOUNT_REPOSITORY],
-) -> list[ViewPersonalAccountBattlePass]:
-    battle_passes = await personal_account_repository.read_my_battle_passes(verification)
+) -> ViewPersonalAccountBattlePass:
+    battle_passes = await personal_account_repository.read_my_battle_pass(verification)
     return battle_passes
 
 
