@@ -309,6 +309,14 @@ class BattlePassRepository(SQLAlchemyRepository):
 
     async def set_to_user(self, create_personal_account_bp: CreatePersonalAccountBattlePasses) -> None:
         async with self._create_session() as session:
-            pa_bp = PersonalAccountBattlePasses(**create_personal_account_bp.model_dump())
-            session.add(pa_bp)
-            await session.commit()
+            q = select(PersonalAccountBattlePasses).where(
+                and_(
+                    PersonalAccountBattlePasses.personal_account_id == create_personal_account_bp.personal_account_id,
+                    PersonalAccountBattlePasses.battle_pass_id == create_personal_account_bp.battle_pass_id,
+                )
+            )
+            result = await session.scalars(q)
+            if not result:
+                pa_bp = PersonalAccountBattlePasses(**create_personal_account_bp.model_dump())
+                session.add(pa_bp)
+                await session.commit()
