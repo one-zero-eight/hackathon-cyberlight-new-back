@@ -31,6 +31,7 @@ class ViewTask(BaseModel):
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
     exp: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
+    explanation: Optional[str] = Field(default=None, description="Explanation of the answer for the task")
     rewards_associations: Optional[list["RewardAssociation"]] = Field(default_factory=list)
 
     def check_answer(self, answer: Optional[str | list[str]]) -> bool:

@@ -11,17 +11,46 @@ consultants:
       - day: 1
         start: "14:00"
         end: "16:00"
-  - id: 1002
-    name: "Георгий"
-    description: "Профи в области разведки по открытым источникам"
-    image: "static/georgy.jpg"
-    timeslots:
-      - day: 2
+      - day: 3
         start: "10:00"
         end: "12:00"
       - day: 3
         start: "14:00"
         end: "16:00"
+  - id: 1002
+    name: "Георгий"
+    description: "Профи разведки по открытым источникам"
+    image: "static/georgy.jpg"
+    timeslots:
+      - day: 2
+        start: "10:00"
+        end: "12:00"
+      - day: 2
+        start: "14:00"
+        end: "16:00"
+      - day: 3
+        start: "14:00"
+        end: "16:00"
+      - day: 3
+        start: "10:00"
+        end: "12:00"
+      - day: 4
+        start: "10:00"
+        end: "12:00"
+      - day: 4
+        start: "14:00"
+        end: "16:00"
+      - day: 4
+        start: "16:00"
+        end: "18:00"
+  - id: 1003
+    name: "Артур"
+    description: "~Глава отдела кибербезопасности~"
+    image: "static/artur.jpg"
+  - id: 1004
+    name: "Александр"
+    description: "Профессиональный криптограф"
+    image: "static/alex.jpg"
 lessons:
   - alias: internet_basics
     title: Основы интернета
