@@ -30,11 +30,11 @@ class Task(BaseModel):
         count: int = Field(1, description="Count of the reward")
 
     alias: str = Field(..., description="Alias of the task")
-    type: StepType = Field(..., description="Type of the task, need for rendering and validation")
+    type: StepType = Field(StepType.empty, description="Type of the task, need for rendering and validation")
 
     content: str = Field(..., description="Content of the task")
     title: Optional[str] = Field("", description="Title of the task")
-
+    explanation: Optional[str] = Field(None, description="Explanation of the answer for the task")
     choices: Optional[list[str]] = Field(default=None, description="Choices for multichoice, radio, instant tasks")
     correct_choices: Optional[list[int]] = Field(
         default=None, description="Correct choices for multichoice, instant, radio tasks"

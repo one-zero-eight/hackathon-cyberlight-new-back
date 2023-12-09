@@ -57,6 +57,7 @@ class Task(Base):
     choices: Mapped[list[str]] = mapped_column(postgresql.ARRAY(String), nullable=True, default=None)
     correct_choices: Mapped[list[int]] = mapped_column(postgresql.ARRAY(Integer), nullable=True, default=None)
     input_answers: Mapped[list[str]] = mapped_column(postgresql.ARRAY(String), nullable=True, default=None)
+    explanation: Mapped[Optional[str]] = mapped_column(nullable=True)
     exp: Mapped[int] = mapped_column(nullable=False, default=0)
     rewards: AssociationProxy[list["Reward"]] = association_proxy("rewards_associations", "reward")
     rewards_associations: Mapped[list["TaskReward"]] = relationship("TaskReward", lazy="selectin")

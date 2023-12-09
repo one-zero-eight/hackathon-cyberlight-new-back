@@ -64,6 +64,7 @@ class CreateTask(BaseModel):
         default=None, description="Correct choices for multichoice, instant, radio tasks"
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
+    explanation: Optional[list[str]] = Field(default=None, description="Explanation of the answer for the task")
     exp: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
 
 
@@ -78,6 +79,7 @@ class UpdateTask(BaseModel):
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
     exp: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
+    explanation: Optional[list[str]] = Field(default=None, description="Explanation of the answer for the task")
 
 
 class ViewLesson(BaseModel):
