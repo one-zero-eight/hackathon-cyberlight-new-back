@@ -1,9 +1,9 @@
 $schema: "./predefined.schema.yaml"
 consultants:
   - id: 1001
-    name: "Антон"
+    name: "Ксения"
     description: "Специалист по кибербезопаности"
-    image: "static/anton.jpg"
+    image: "static/xi.jpeg"
     timeslots:
       - day: 1
         start: "10:00"
@@ -18,9 +18,9 @@ consultants:
         start: "14:00"
         end: "16:00"
   - id: 1002
-    name: "Георгий"
-    description: "Профи разведки по открытым источникам"
-    image: "static/georgy.jpg"
+    name: "Артур"
+    description: "Глава отдела кибербезопасности"
+    image: "static/artur.jpg"
     timeslots:
       - day: 2
         start: "10:00"
@@ -44,13 +44,51 @@ consultants:
         start: "16:00"
         end: "18:00"
   - id: 1003
-    name: "Артур"
-    description: "~Глава отдела кибербезопасности~"
-    image: "static/artur.jpg"
+    name: "Георгий"
+    description: "Профи по разведке данных"
+    image: "static/georgy.jpeg"
+    timeslots:
+      - day: 2
+        start: "14:00"
+        end: "16:00"
+      - day: 3
+        start: "14:00"
+        end: "16:00"
+      - day: 3
+        start: "10:00"
+        end: "12:00"
+      - day: 6
+        start: "10:00"
+        end: "12:00"
+      - day: 6
+        start: "14:00"
+        end: "16:00"
+      - day: 6
+        start: "16:00"
+        end: "18:00"
   - id: 1004
-    name: "Александр"
-    description: "Профессиональный криптограф"
-    image: "static/alex.jpg"
+    name: "Анастасия"
+    description: "Специалист криминалистики"
+    image: "static/nast.jpeg"
+    timeslots:
+      - day: 2
+        start: "14:00"
+        end: "16:00"
+      - day: 3
+        start: "14:00"
+        end: "16:00"
+      - day: 3
+        start: "10:00"
+        end: "12:00"
+      - day: 6
+        start: "10:00"
+        end: "12:00"
+      - day: 6
+        start: "14:00"
+        end: "16:00"
+      - day: 6
+        start: "16:00"
+        end: "18:00"
 lessons:
   - alias: internet_basics
     title: Основы интернета
@@ -111,70 +149,26 @@ battle_passes:
         experience: 100
         rewards:
           - 100000002
+          - 10000008
       - value: 2
         experience: 200
+        rewards:
+          - 10000004
+          - 10000011
       - value: 3
         experience: 300
         rewards:
           - 10000005
+          - 10000009
       - value: 4
         experience: 400
+        rewards:
+          - 10000016
       - value: 5
         experience: 500
         rewards:
           - 10000006
-  - id: 100000001
-    is_active: false
-    name: 'Сезон 1: Цифровая эволюция'
-    date_start: '2023-01-01'
-    date_end: '2023-03-01'
-    battle_pass:
-      is_active: true
-      levels:
-        - level: 1
-          exp: 1000
-          rewards:
-            - 10000001
-            - 10000002
-            - 10000003
-        - level: 2
-          exp: 2000
-          rewards:
-            - 10000004
-            - 10000005
-            - 10000006
-        - level: 3
-          exp: 3000
-          rewards:
-            - 10000007
-            - 10000008
-            - 10000009
-  - id: 100000002
-    is_active: false
-    name: 'Сезон 2: Цифровое господство'
-    date_start: '2023-04-01'
-    date_end: '2023-06-01'
-    battle_pass:
-      is_active: false
-      levels:
-        - level: 1
-          exp: 1000
-          rewards:
-            - 10000001
-            - 10000002
-            - 10000003
-        - level: 2
-          exp: 2000
-          rewards:
-            - 10000004
-            - 10000005
-            - 10000006
-        - level: 3
-          exp: 3000
-          rewards:
-            - 10000007
-            - 10000008
-            - 10000009
+          - 10000019
 
 tasks:
   - alias: phishing

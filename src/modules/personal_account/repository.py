@@ -63,6 +63,12 @@ class PersonalAccountRepository(SQLAlchemyRepository):
             await session.execute(q)
             await session.commit()
 
+    async def set_experience(self, user_id: int, exp: int) -> None:
+        async with self._create_session() as session:
+            q = update(PersonalAccount).where(PersonalAccount.user_id == user_id).values(total_exp=exp)
+            await session.execute(q)
+            await session.commit()
+
     async def read_leaderboard(self) -> list[ViewLeaderBoard]:
         async with self._create_session() as session:
             q = text(

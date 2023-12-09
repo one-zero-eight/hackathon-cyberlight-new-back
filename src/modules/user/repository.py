@@ -28,7 +28,7 @@ async def _get_available_user_ids(session: AsyncSession, count: int = 1) -> list
 
 
 class UserRepository(SQLAlchemyRepository):
-    async def get_all(self) -> list["ViewUser"]:
+    async def read_all(self) -> list["ViewUser"]:
         async with self._create_session() as session:
             q = select(User)
             users = await session.scalars(q)
@@ -48,12 +48,13 @@ class UserRepository(SQLAlchemyRepository):
             await session.commit()
             return ViewUser.model_validate(new_user)
 
-    async def create_superuser(self, login: str, password: str) -> ViewUser:
+    async def create_superuser(self, login: str, password: str, email: str) -> ViewUser:
         async with self._create_session() as session:
             user_dict = {
                 "id": await _get_available_user_ids(session),
                 "login": login,
                 "name": "Superuser",
+                "email": email,
                 "password_hash": Dependencies.get_auth_repository().get_password_hash(password),
                 "role": "admin",
             }

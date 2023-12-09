@@ -10,8 +10,9 @@ from src.api.dependencies import (
     DEPENDS_ACHIEVEMENT_REPOSITORY,
     DEPENDS_BATTLE_PASS_REPOSITORY,
     DEPENDS_EVENT_REPOSITORY,
+    DEPENDS_USER_REPOSITORY,
 )
-from src.api.exceptions import IncorrectCredentialsException, NoCredentialsException
+from src.api.exceptions import IncorrectCredentialsException, NoCredentialsException, ForbiddenException
 from src.modules.auth.dependencies import verify_request
 from src.modules.auth.schemas import VerificationResult
 from src.modules.personal_account.repository import (
@@ -37,7 +38,9 @@ from src.modules.personal_account.schemas import (
     ViewPersonalAccountBattlePass,
     CreateEvent,
     CreateEventParticipant,
+    ViewEvent,
 )
+from src.modules.user.repository import UserRepository
 
 router = APIRouter(tags=["Personal Account"])
 
@@ -56,6 +59,24 @@ async def get_my_personal_account(
 ) -> ViewPersonalAccount:
     personal_account = await personal_account_repository.read(verification)
     return personal_account
+
+
+@router.put(
+    "/personal_account/by-user-id/{user_id}/exp",
+)
+async def set_experience(
+    user_id: int,
+    exp: int,
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    personal_account_repository: Annotated[PersonalAccountRepository, DEPENDS_PERSONAL_ACCOUNT_REPOSITORY],
+):
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
+    await personal_account_repository.set_experience(user_id, exp)
+    return {"success": True}
 
 
 @router.get(
@@ -133,9 +154,14 @@ async def read_reward(
 )
 async def create_reward(
     verification: Annotated[VerificationResult, Depends(verify_request)],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
     reward_repository: Annotated[RewardRepository, DEPENDS_REWARD_REPOSITORY],
     obj: CreateReward,
 ) -> ViewReward:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     reward = await reward_repository.create(obj)
     return reward
 
@@ -150,9 +176,14 @@ async def create_reward(
 )
 async def set_reward_to_personal_account(
     verification: Annotated[VerificationResult, Depends(verify_request)],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
     reward_repository: Annotated[RewardRepository, DEPENDS_REWARD_REPOSITORY],
     obj: CreatePersonalAccountReward,
 ):
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     await reward_repository.add_to_personal_account(obj)
     return {"success": True}
 
@@ -200,9 +231,14 @@ async def read_achievement(
 )
 async def create_achievement(
     verification: Annotated[VerificationResult, Depends(verify_request)],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
     achievement_repository: Annotated[AchievementRepository, DEPENDS_ACHIEVEMENT_REPOSITORY],
     obj: CreateAchievement,
 ) -> ViewAchievement:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     achievement = await achievement_repository.create(obj)
     return achievement
 
@@ -217,9 +253,14 @@ async def create_achievement(
 )
 async def set_achievement_to_personal_account(
     verification: Annotated[VerificationResult, Depends(verify_request)],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
     achievement_repository: Annotated[AchievementRepository, DEPENDS_ACHIEVEMENT_REPOSITORY],
     obj: CreatePersonalAccountAchievement,
 ) -> None:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     await achievement_repository.set_to_personal_account(obj)
     return {"success": True}
 
@@ -267,9 +308,14 @@ async def read_battle_pass(
 )
 async def create_battle_pass(
     verification: Annotated[VerificationResult, Depends(verify_request)],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
     battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
     obj: CreateBattlePass,
 ) -> ViewBattlePass:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     battle_pass = await battle_pass_repository.create(obj)
     return battle_pass
 
@@ -284,9 +330,14 @@ async def create_battle_pass(
 )
 async def set_battle_pass_to_user(
     verification: Annotated[VerificationResult, Depends(verify_request)],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
     battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
     obj: CreatePersonalAccountBattlePasses,
-) -> None:
+):
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     await battle_pass_repository.add_to_user(obj)
     return {"success": True}
 
@@ -303,7 +354,7 @@ async def read_event(
     verification: Annotated[VerificationResult, Depends(verify_request)],
     event_repository: Annotated[EventRepository, DEPENDS_EVENT_REPOSITORY],
     event_id: int,
-) -> ViewReward:
+) -> ViewEvent:
     event = await event_repository.read(event_id)
     return event
 
@@ -318,9 +369,14 @@ async def read_event(
 )
 async def create_event(
     verification: Annotated[VerificationResult, Depends(verify_request)],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
     event_repository: Annotated[EventRepository, DEPENDS_EVENT_REPOSITORY],
     obj: CreateEvent,
-) -> ViewReward:
+) -> ViewEvent:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     reward = await event_repository.create(obj)
     return reward
 

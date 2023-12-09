@@ -91,6 +91,7 @@ async def setup_predefined():
         superuser = await user_repository.create_superuser(
             login=settings.predefined.first_superuser_login,
             password=settings.predefined.first_superuser_password,
+            email=settings.predefined.first_superuser_email,
         )
 
     predefined: Predefined = Predefined.from_yaml(Path("predefined.yaml"))

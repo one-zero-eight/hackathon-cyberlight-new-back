@@ -43,6 +43,20 @@ class IncorrectCredentialsException(HTTPException):
     responses = {401: {"description": "Could not validate credentials"}}
 
 
+class ForbiddenException(HTTPException):
+    """
+    HTTP_403_FORBIDDEN
+    """
+
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=self.responses[403]["description"],
+        )
+
+    responses = {403: {"description": "Not enough permissions"}}
+
+
 class InvalidRedirectUri(HTTPException):
     """
     HTTP_400_BAD_REQUEST

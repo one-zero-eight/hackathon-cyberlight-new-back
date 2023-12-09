@@ -5,12 +5,15 @@ from io import StringIO
 
 from fastapi import APIRouter, Depends, Response
 from fastapi.responses import FileResponse
+from starlette.responses import Response
 
-from src.api.exceptions import IncorrectCredentialsException, NoCredentialsException
+from src.api.dependencies import DEPENDS_USER_REPOSITORY
+from src.api.exceptions import IncorrectCredentialsException, NoCredentialsException, ForbiddenException
 from src.modules.auth.dependencies import verify_request
 from src.modules.auth.schemas import VerificationResult
 from src.modules.report.schemas import UserReport
 from src.modules.report.utils import get_rows
+from src.modules.user.repository import UserRepository
 
 router = APIRouter(prefix="/report", tags=["Report"])
 
@@ -26,7 +29,12 @@ router = APIRouter(prefix="/report", tags=["Report"])
 )
 async def get_report(
     verification: Annotated[VerificationResult, Depends(verify_request)],
-) -> FileResponse:
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+) -> Response:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     rows = await get_rows()
     fieldnames = list(UserReport.model_json_schema()["properties"].keys())
     out = StringIO()

@@ -13,7 +13,7 @@ from src.api.dependencies import (
     DEPENDS_PERSONAL_ACCOUNT_REPOSITORY,
     DEPENDS_BATTLE_PASS_REPOSITORY,
 )
-from src.api.exceptions import ObjectNotFound
+from src.api.exceptions import ObjectNotFound, ForbiddenException
 from src.modules.auth.schemas import VerificationResult
 from src.modules.lesson.repository import LessonRepository
 from src.modules.lesson.schemas import (
@@ -128,8 +128,15 @@ async def get_my_progress(
 # ----------------- Lesson -----------------
 @router.post("/", status_code=201)
 async def post_lesson(
-    data: CreateLesson, lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
+    data: CreateLesson,
+    verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
 ) -> ViewLesson:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     obj = await lesson_repository.create_lesson(data)
     return obj
 
@@ -167,8 +174,16 @@ async def get_one_lesson(
 
 @router.put("/{lesson_id}", status_code=201)
 async def put_lesson(
-    lesson_id: int, data: UpdateLesson, lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
+    lesson_id: int,
+    data: UpdateLesson,
+    verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
 ) -> ViewLesson:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     obj = await lesson_repository.update_lesson(lesson_id, data)
     return obj
 
@@ -182,8 +197,16 @@ async def get_tasks_for_lesson(
 
 @router.put("/{lesson_id}/tasks", status_code=201)
 async def put_tasks_for_lesson(
-    lesson_id: int, task_ids: list[int], lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
+    lesson_id: int,
+    task_ids: list[int],
+    verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
 ) -> None:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     await lesson_repository.set_tasks_for_lesson(lesson_id, task_ids)
 
 
@@ -192,8 +215,16 @@ async def put_tasks_for_lesson(
 
 @router.post("/tasks/", status_code=201)
 async def post_task(
-    data: CreateTask, lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
+    data: CreateTask,
+    verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
 ) -> ViewTask:
+    user = await user_repository.read(verification.user_id)
+
+    if not user.is_admin:
+        raise ForbiddenException()
+
     obj = await lesson_repository.create_task(data)
     return obj
 
@@ -214,8 +245,16 @@ async def get_one_task(
 
 @router.put("/tasks/{task_id}", status_code=201)
 async def put_task(
-    task_id: int, data: UpdateTask, lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
+    task_id: int,
+    data: UpdateTask,
+    verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
 ) -> ViewTask:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
+
     obj = await lesson_repository.update_task(task_id, data)
     return obj
 
@@ -227,7 +266,14 @@ class RewardEntry(BaseModel):
 
 @router.put("/tasks/{task_id}/rewards", status_code=201)
 async def put_task_rewards(
-    task_id: int, rewards: list[RewardEntry], lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY]
+    task_id: int,
+    rewards: list[RewardEntry],
+    verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    lesson_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
 ) -> ViewTask:
+    user = await user_repository.read(verification.user_id)
+    if not user.is_admin:
+        raise ForbiddenException()
     await lesson_repository.set_rewards_for_task(task_id, [(r.reward_id, r.count) for r in rewards])
     return await lesson_repository.read_task(task_id)

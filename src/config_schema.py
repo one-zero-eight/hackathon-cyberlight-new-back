@@ -52,6 +52,7 @@ class Predefined(BaseModel):
 
     first_superuser_login: str = Field(default="admin", description="Login for the first superuser")
     first_superuser_password: str = Field(default="admin", description="Password for the first superuser")
+    first_superuser_email: str = Field(default="admin@admin", description="Email for the first superuser")
 
 
 class SMTP(BaseModel):
