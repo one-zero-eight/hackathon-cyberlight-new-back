@@ -67,6 +67,11 @@ $defs:
         description: Password for the first superuser
         title: First Superuser Password
         type: string
+      first_superuser_email:
+        default: admin@admin
+        description: Email for the first superuser
+        title: First Superuser Email
+        type: string
     title: Predefined
     type: object
   SMTP:
