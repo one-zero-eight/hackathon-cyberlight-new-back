@@ -311,7 +311,7 @@ class BattlePassRepository(SQLAlchemyRepository):
             if objs:
                 return [ViewBattlePass.model_validate(obj) for obj in objs]
 
-    async def set_to_user(self, create_personal_account_bp: CreatePersonalAccountBattlePasses) -> None:
+    async def add_to_user(self, create_personal_account_bp: CreatePersonalAccountBattlePasses) -> None:
         async with self._create_session() as session:
             q = select(PersonalAccountBattlePasses).where(
                 and_(
@@ -319,10 +319,44 @@ class BattlePassRepository(SQLAlchemyRepository):
                     PersonalAccountBattlePasses.battle_pass_id == create_personal_account_bp.battle_pass_id,
                 )
             )
-            result = await session.scalars(q)
+            result = await session.scalar(q)
+
             if not result:
                 pa_bp = PersonalAccountBattlePasses(**create_personal_account_bp.model_dump())
                 session.add(pa_bp)
+            await session.commit()
+
+    async def increase_battle_exp(self, user_id: int, exp: int) -> None:
+        async with self._create_session() as session:
+            # select
+            q = (
+                select(PersonalAccountBattlePasses)
+                .join(BattlePass)
+                .where(
+                    and_(
+                        BattlePass.is_active,
+                        PersonalAccountBattlePasses.personal_account_id == user_id,
+                    )
+                )
+            )
+
+            passes = await session.scalars(q)
+
+            if passes:
+                for pa_bp in passes:
+                    # update
+                    q = (
+                        update(PersonalAccountBattlePasses)
+                        .where(
+                            and_(
+                                PersonalAccountBattlePasses.personal_account_id == user_id,
+                                PersonalAccountBattlePasses.battle_pass_id == pa_bp.battle_pass_id,
+                            )
+                        )
+                        .values(experience=PersonalAccountBattlePasses.experience + exp)
+                    )
+                    await session.execute(q)
+
                 await session.commit()
 
 
@@ -345,10 +379,10 @@ class EventRepository(SQLAlchemyRepository):
 
     async def get_active(self) -> Optional[ViewEvent]:
         async with self._create_session() as session:
-            q = select(Event).where(Event.is_active == True)
+            q = select(Event).where(Event.is_active)
             obj = await session.scalar(q)
             if obj:
-                return ViewLevel.model_validate(obj)
+                return ViewEvent.model_validate(obj)
 
     async def add_participant_to_event(self, event_participant: CreateEventParticipant) -> None:
         async with self._create_session() as session:

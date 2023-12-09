@@ -40,7 +40,7 @@ class Task(BaseModel):
         default=None, description="Correct choices for multichoice, instant, radio tasks"
     )
     input_answers: Optional[list[str]] = Field(default=None, description="Answer for input task (synonyms)")
-    reward: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
+    exp: Optional[int] = Field(default=0, description="Reward for the task (in xp points)")
     rewards: Optional[list[RewardEntry]] = Field(default_factory=list, description="List of reward ids for the task")
 
 

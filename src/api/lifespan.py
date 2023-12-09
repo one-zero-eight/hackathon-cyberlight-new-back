@@ -22,6 +22,7 @@ from src.modules.personal_account.schemas import (
     CreateLevel,
     CreatePersonalAccountBattlePasses,
 )
+from src.modules.phishing.repository import PhishingRepository
 from src.modules.smtp.repository import SMTPRepository
 from src.modules.user.repository import UserRepository
 from src.modules.personal_account.repository import (
@@ -53,6 +54,7 @@ async def setup_repositories():
     level_repository = LevelRepository(storage)
     battle_pass_repository = BattlePassRepository(storage)
     consultation_repository = ConsultationRepository(storage)
+    phishing_repository = PhishingRepository()
 
     Dependencies.set_auth_repository(auth_repository)
     Dependencies.set_storage(storage)
@@ -66,6 +68,7 @@ async def setup_repositories():
     Dependencies.set_level_repository(level_repository)
     Dependencies.set_battle_pass_repository(battle_pass_repository)
     Dependencies.set_consultation_repository(consultation_repository)
+    Dependencies.set_phishing_repository(phishing_repository)
 
     if settings.environment == Environment.DEVELOPMENT:
         import logging
@@ -158,7 +161,7 @@ async def setup_predefined():
                     )
                 )
                 await reward_repository.set_rewards_to_level(db_level.id, [reward_id for reward_id in level.rewards])
-        await battle_pass_repository.set_to_user(
+        await battle_pass_repository.add_to_user(
             CreatePersonalAccountBattlePasses(
                 battle_pass_id=battlepass.id,
                 personal_account_id=superuser.id,

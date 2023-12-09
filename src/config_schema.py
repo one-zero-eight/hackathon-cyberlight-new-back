@@ -60,6 +60,10 @@ class SMTP(BaseModel):
     username: str = Field(..., description="SMTP username (email)")
     password: SecretStr = Field(..., description="SMTP password")
     mailing_template: MailingTemplate = Field(default_factory=MailingTemplate, description="Mailing template settings")
+    phishing_template: MailingTemplate = Field(
+        default=MailingTemplate(subject="Ваши финансовые средства в опасности!!!", file="phishing.jinja2"),
+        description="Phishing template settings",
+    )
 
 
 class Settings(BaseModel):

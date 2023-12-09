@@ -254,13 +254,13 @@ $defs:
         default: null
         description: Answer for input task (synonyms)
         title: Input Answers
-      reward:
+      exp:
         anyOf:
         - type: integer
         - type: 'null'
         default: 0
         description: Reward for the task (in xp points)
-        title: Reward
+        title: Exp
       rewards:
         anyOf:
         - items:

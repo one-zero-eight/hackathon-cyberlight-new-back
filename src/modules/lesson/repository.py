@@ -134,6 +134,13 @@ class LessonRepository(SQLAlchemyRepository):
             if obj:
                 return ViewTask.model_validate(obj)
 
+    async def read_task_by_alias(self, alias: str) -> Optional[ViewTask]:
+        async with self._create_session() as session:
+            q = select(Task).where(Task.alias == alias)
+            obj = await session.scalar(q)
+            if obj:
+                return ViewTask.model_validate(obj)
+
     async def update_task(self, id_: int, data: UpdateTask) -> ViewTask:
         async with self._create_session() as session:
             q = (

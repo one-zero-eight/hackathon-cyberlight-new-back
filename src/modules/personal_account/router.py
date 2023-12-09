@@ -287,7 +287,7 @@ async def set_battle_pass_to_user(
     battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
     obj: CreatePersonalAccountBattlePasses,
 ) -> None:
-    await battle_pass_repository.set_to_user(obj)
+    await battle_pass_repository.add_to_user(obj)
     return {"success": True}
 
 

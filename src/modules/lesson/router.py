@@ -11,6 +11,7 @@ from src.api.dependencies import (
     DEPENDS_USER_REPOSITORY,
     DEPENDS_REWARD_REPOSITORY,
     DEPENDS_PERSONAL_ACCOUNT_REPOSITORY,
+    DEPENDS_BATTLE_PASS_REPOSITORY,
 )
 from src.api.exceptions import ObjectNotFound
 from src.modules.auth.schemas import VerificationResult
@@ -24,7 +25,7 @@ from src.modules.lesson.schemas import (
     UpdateLesson,
     UpdateTask,
 )
-from src.modules.personal_account.repository import RewardRepository, PersonalAccountRepository
+from src.modules.personal_account.repository import RewardRepository, PersonalAccountRepository, BattlePassRepository
 from src.modules.user.repository import UserRepository
 from src.storages.sqlalchemy.models.lesson import ConditionType
 
@@ -34,6 +35,7 @@ router = APIRouter(prefix="/lessons", tags=["Lesson"])
 class TaskSolveResult(BaseModel):
     success: bool
     rewards: list[int] = Field(default_factory=list)
+    exp: int = 0
 
 
 @router.post("/solve")
@@ -44,6 +46,7 @@ async def solve(
     personal_account: Annotated[PersonalAccountRepository, DEPENDS_PERSONAL_ACCOUNT_REPOSITORY],
     reward_repository: Annotated[RewardRepository, DEPENDS_REWARD_REPOSITORY],
     task_repository: Annotated[LessonRepository, DEPENDS_LESSON_REPOSITORY],
+    battle_pass_repository: Annotated[BattlePassRepository, DEPENDS_BATTLE_PASS_REPOSITORY],
 ) -> TaskSolveResult:
     task = await task_repository.read_task(answer.task_id)
 
@@ -58,14 +61,14 @@ async def solve(
         user_id=verification.user_id, lesson_id=answer.lesson_id, task_id=answer.task_id, is_correct=success
     )
 
-    if success and task.rewards_associations:
-        await reward_repository.add_rewards_to_personal_account(
-            verification.user_id, [(r.reward.id, r.count) for r in task.rewards_associations]
-        )
-        return TaskSolveResult(success=success, rewards=[r.reward.id for r in task.rewards_associations])
-    elif success:
+    if success:
+        if task.rewards_associations:
+            await reward_repository.add_rewards_to_personal_account(
+                verification.user_id, [(r.reward.id, r.count) for r in task.rewards_associations]
+            )
         await personal_account.increase_exp(verification.user_id, task.exp)
-
+        await battle_pass_repository.increase_battle_exp(verification.user_id, task.exp)
+        return TaskSolveResult(success=success, rewards=[r.reward.id for r in task.rewards_associations], exp=task.exp)
     return TaskSolveResult(success=success)
 
 

@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from src.storages.sqlalchemy.storage import SQLAlchemyStorage
     from src.modules.smtp.repository import SMTPRepository
     from src.modules.consultation.repository import ConsultationRepository
+    from src.modules.phishing.repository import PhishingRepository
 
 
 class Dependencies:
@@ -45,6 +46,7 @@ class Dependencies:
     _level_repository: "LevelRepository"
     _battle_pass_repository: "BattlePassRepository"
     _consultation_repository: "ConsultationRepository"
+    _phishing_repository: "PhishingRepository"
     _event_repository: "EventRepository"
 
     @classmethod
@@ -142,6 +144,14 @@ class Dependencies:
     @classmethod
     def get_consultation_repository(cls) -> "ConsultationRepository":
         return cls._consultation_repository
+
+    @classmethod
+    def set_phishing_repository(cls, phishing_repository: "PhishingRepository"):
+        cls._phishing_repository = phishing_repository
+
+    @classmethod
+    def get_phishing_repository(cls) -> "PhishingRepository":
+        return cls._phishing_repository
 
     @classmethod
     def set_event_repository(cls, event_repository):

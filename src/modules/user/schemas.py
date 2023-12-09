@@ -1,6 +1,7 @@
 __all__ = ["ViewUser", "CreateUser"]
 
 from enum import StrEnum
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -14,6 +15,7 @@ class ViewUser(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    email: Optional[str] = Field(None, description="Email of the user")
     login: str
     name: str
     password_hash: str = Field(exclude=True)
