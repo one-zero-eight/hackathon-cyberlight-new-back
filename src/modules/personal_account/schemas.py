@@ -36,6 +36,14 @@ class ViewAchievement(BaseModel):
     )
 
 
+class ViewAchievementWithSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    achievement: ViewAchievement
+    total_count: int = Field(..., description="Total count of users with this achievement", examples=[0, 1, 2, 3])
+    percent: float = Field(..., description="Percent of users with this achievement", examples=[0.0, 0.1, 0.2, 0.3])
+
+
 class ViewBattlePass(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

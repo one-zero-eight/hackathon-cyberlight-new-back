@@ -68,6 +68,20 @@ async def solve(
     return TaskSolveResult(success=success)
 
 
+class LessonProgress(BaseModel):
+    lesson_id: int
+    is_available: bool = False
+
+
+@router.get("/my-progress")
+async def get_my_progress(
+    verification: Annotated[VerificationResult, DEPENDS_VERIFIED_REQUEST],
+    user_repository: Annotated[UserRepository, DEPENDS_USER_REPOSITORY],
+    personal_account: Annotated[PersonalAccountRepository, DEPENDS_PERSONAL_ACCOUNT_REPOSITORY],
+) -> list[ViewLesson]:
+    ...
+
+
 # ----------------- Lesson -----------------
 @router.post("/", status_code=201)
 async def post_lesson(

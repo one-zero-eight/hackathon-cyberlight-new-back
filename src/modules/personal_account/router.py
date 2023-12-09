@@ -31,6 +31,7 @@ from src.modules.personal_account.schemas import (
     CreateBattlePass,
     CreatePersonalAccountBattlePasses,
     ViewLeaderBoard,
+    ViewAchievementWithSummary,
     ViewPersonalAccountBattlePass,
 )
 
@@ -163,7 +164,7 @@ async def set_reward_to_personal_account(
 async def get_all_achievements(
     verification: Annotated[VerificationResult, Depends(verify_request)],
     achievement_repository: Annotated[AchievementRepository, DEPENDS_ACHIEVEMENT_REPOSITORY],
-) -> list[ViewAchievement]:
+) -> list[ViewAchievementWithSummary]:
     all_achievements = await achievement_repository.get_all()
     return all_achievements
 

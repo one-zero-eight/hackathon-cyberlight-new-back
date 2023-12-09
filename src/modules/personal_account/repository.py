@@ -32,6 +32,7 @@ from src.modules.personal_account.schemas import (
     UpdateAchievement,
     CreatePersonalAccountAchievement,
     ViewLeaderBoard,
+    ViewAchievementWithSummary,
     ViewPersonalAccountBattlePass,
 )
 
@@ -198,12 +199,37 @@ class AchievementRepository(SQLAlchemyRepository):
             await session.execute(q)
             await session.commit()
 
-    async def get_all(self) -> list[ViewAchievement]:
+    async def get_all(self) -> list[ViewAchievementWithSummary]:
         async with self._create_session() as session:
             q = select(Achievement)
             objs = await session.scalars(q)
             if objs:
-                return [ViewAchievement.model_validate(obj) for obj in objs]
+                achievements = [ViewAchievement.model_validate(achievement) for achievement in objs]
+
+                achievement_counts = {}
+                for achievement in achievements:
+                    q = (
+                        select(func.count(PersonalAccountAchievements.personal_account_id))
+                        .select_from(PersonalAccountAchievements)
+                        .where(PersonalAccountAchievements.achievement_id == achievement.id)
+                    )
+                    achievement_counts[achievement.id] = await session.scalar(q)
+                total_user_count = await session.scalar(select(func.count(PersonalAccount.user_id)))
+
+                achievement_percentages = {}
+                for achievement_id, count in achievement_counts.items():
+                    achievement_percentages[achievement_id] = count / total_user_count
+
+                achievement_summaries = [
+                    ViewAchievementWithSummary(
+                        percent=achievement_percentages[achievement.id],
+                        total_count=achievement_counts[achievement.id],
+                        achievement=achievement,
+                    )
+                    for achievement in achievements
+                ]
+
+                return achievement_summaries
 
 
 class LevelRepository(SQLAlchemyRepository):

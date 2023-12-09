@@ -1,4 +1,5 @@
 from enum import StrEnum
+from typing import Optional
 
 from sqlalchemy import Integer
 from sqlalchemy.dialects import postgresql
@@ -16,6 +17,13 @@ class StepType(StrEnum):
     input = "input"
 
 
+class ConditionType(StrEnum):
+    nothing = "nothing"
+    min_level = "min_level"
+    reward = "reward"
+    battlepass = "battlepass"
+
+
 class Lesson(Base):
     __tablename__ = "lessons"
 
@@ -28,6 +36,14 @@ class Lesson(Base):
     task_associations: Mapped[list["TaskAssociation"]] = relationship(
         "TaskAssociation", lazy="selectin", order_by="TaskAssociation.order"
     )
+
+    condition_type: Mapped[ConditionType] = mapped_column(
+        SQLEnum(ConditionType), nullable=False, default=ConditionType.nothing
+    )
+    recommended_level: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, default=None)
+    min_level: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, default=None)
+    reward_id: Mapped[Optional[int]] = mapped_column(ForeignKey(Reward.id), nullable=True, default=None)
+    battlepass_id: Mapped[Optional[int]] = mapped_column(ForeignKey("battle_pass.id"), nullable=True, default=None)
 
 
 class Task(Base):
