@@ -14,6 +14,7 @@ from src.storages.sqlalchemy.models import (
     PersonalAccountBattlePasses,
     LevelRewards,
 )
+from src.storages.sqlalchemy.models.event import Event, EventParticipants
 from src.storages.sqlalchemy.repository import SQLAlchemyRepository
 from src.storages.sqlalchemy.utils import *
 from src.modules.personal_account.schemas import (
@@ -34,6 +35,9 @@ from src.modules.personal_account.schemas import (
     ViewLeaderBoard,
     ViewAchievementWithSummary,
     ViewPersonalAccountBattlePass,
+    CreateEvent,
+    ViewEvent,
+    CreateEventParticipant,
 )
 
 
@@ -323,4 +327,31 @@ class BattlePassRepository(SQLAlchemyRepository):
 
 
 class EventRepository(SQLAlchemyRepository):
-    pass
+    async def create(self, event_data: CreateEvent) -> ViewEvent:
+        async with self._create_session() as session:
+            obj = Event(**event_data.model_dump())
+            session.add(obj)
+            await session.commit()
+            q = select(Event).where(Event.id == obj.id)
+            event = await session.scalar(q)
+            return ViewEvent.model_validate(event)
+
+    async def read(self, _id: int) -> Optional[ViewEvent]:
+        async with self._create_session() as session:
+            q = select(Event).where(Event.id == _id)
+            obj = await session.scalar(q)
+            if obj:
+                return ViewEvent.model_validate(obj)
+
+    async def get_active(self) -> Optional[ViewEvent]:
+        async with self._create_session() as session:
+            q = select(Event).where(Event.is_active == True)
+            obj = await session.scalar(q)
+            if obj:
+                return ViewLevel.model_validate(obj)
+
+    async def add_participant_to_event(self, event_participant: CreateEventParticipant) -> None:
+        async with self._create_session() as session:
+            obj = EventParticipants(**event_participant.model_dump())
+            session.add(obj)
+            await session.commit()

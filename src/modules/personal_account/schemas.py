@@ -150,6 +150,33 @@ class ViewLeaderBoard(BaseModel):
     id: int = Field(..., description="User ID")
 
 
+class ViewEvent(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str = Field(..., description="Title")
+    description: str = Field(..., description="Description")
+    date_start: datetime.datetime = Field(..., description="Event start date")
+    date_end: datetime.datetime = Field(..., description="Event end date")
+    battle_pass_only: bool = Field(..., description="Is allowed only for battle pass")
+    participants: Optional[list[ViewPersonalAccount]] = Field(..., description="Event participants list")
+    is_active: bool = Field(..., description="Is this event active")
+
+
+class CreateEvent(BaseModel):
+    title: str = Field(..., description="Title")
+    description: str = Field(..., description="Description")
+    date_start: datetime.datetime = Field(..., description="Event start date")
+    date_end: datetime.datetime = Field(..., description="Event end date")
+    battle_pass_only: bool = Field(..., description="Is allowed only for battle pass")
+    is_active: bool = Field(..., description="Is this event active")
+
+
+class CreateEventParticipant(BaseModel):
+    event_id: int
+    personal_account_id: int
+
+
 ViewPersonalAccount.model_rebuild()
 ViewReward.model_rebuild()
 ViewBattlePass.model_rebuild()

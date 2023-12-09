@@ -24,6 +24,7 @@ if TYPE_CHECKING:
         AchievementRepository,
         LevelRepository,
         BattlePassRepository,
+        EventRepository,
     )
     from src.modules.lesson.repository import LessonRepository
     from src.storages.sqlalchemy.storage import SQLAlchemyStorage
@@ -44,6 +45,7 @@ class Dependencies:
     _level_repository: "LevelRepository"
     _battle_pass_repository: "BattlePassRepository"
     _consultation_repository: "ConsultationRepository"
+    _event_repository: "EventRepository"
 
     @classmethod
     def get_storage(cls) -> "SQLAlchemyStorage":
@@ -141,6 +143,14 @@ class Dependencies:
     def get_consultation_repository(cls) -> "ConsultationRepository":
         return cls._consultation_repository
 
+    @classmethod
+    def set_event_repository(cls, event_repository):
+        cls._event_repository = event_repository
+
+    @classmethod
+    def get_event_repository(cls) -> "EventRepository":
+        return cls._event_repository
+
 
 DEPENDS = Depends(lambda: Dependencies)
 """It's a dependency injection container for FastAPI.
@@ -156,6 +166,7 @@ DEPENDS_ACHIEVEMENT_REPOSITORY = Depends(Dependencies.get_achievement_repository
 DEPENDS_LEVEL_REPOSITORY = Depends(Dependencies.get_level_repository)
 DEPENDS_BATTLE_PASS_REPOSITORY = Depends(Dependencies.get_battle_pass_repository)
 DEPENDS_CONSULTATION_REPOSITORY = Depends(Dependencies.get_consultation_repository)
+DEPENDS_EVENT_REPOSITORY = Depends(Dependencies.get_event_repository)
 
 from src.modules.auth.dependencies import verify_request  # noqa: E402
 

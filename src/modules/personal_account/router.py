@@ -9,6 +9,7 @@ from src.api.dependencies import (
     DEPENDS_REWARD_REPOSITORY,
     DEPENDS_ACHIEVEMENT_REPOSITORY,
     DEPENDS_BATTLE_PASS_REPOSITORY,
+    DEPENDS_EVENT_REPOSITORY,
 )
 from src.api.exceptions import IncorrectCredentialsException, NoCredentialsException
 from src.modules.auth.dependencies import verify_request
@@ -18,6 +19,7 @@ from src.modules.personal_account.repository import (
     RewardRepository,
     AchievementRepository,
     BattlePassRepository,
+    EventRepository,
 )
 from src.modules.personal_account.schemas import (
     ViewPersonalAccount,
@@ -33,6 +35,8 @@ from src.modules.personal_account.schemas import (
     ViewLeaderBoard,
     ViewAchievementWithSummary,
     ViewPersonalAccountBattlePass,
+    CreateEvent,
+    CreateEventParticipant,
 )
 
 router = APIRouter(tags=["Personal Account"])
@@ -284,4 +288,55 @@ async def set_battle_pass_to_user(
     obj: CreatePersonalAccountBattlePasses,
 ) -> None:
     await battle_pass_repository.set_to_user(obj)
+    return {"success": True}
+
+
+@router.get(
+    "/event/{event_id}",
+    responses={
+        200: {"description": "Read event by id"},
+        **IncorrectCredentialsException.responses,
+        **NoCredentialsException.responses,
+    },
+)
+async def read_event(
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    event_repository: Annotated[EventRepository, DEPENDS_EVENT_REPOSITORY],
+    event_id: int,
+) -> ViewReward:
+    event = await event_repository.read(event_id)
+    return event
+
+
+@router.post(
+    "/event/",
+    responses={
+        200: {"description": "Create event"},
+        **IncorrectCredentialsException.responses,
+        **NoCredentialsException.responses,
+    },
+)
+async def create_event(
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    event_repository: Annotated[EventRepository, DEPENDS_EVENT_REPOSITORY],
+    obj: CreateEvent,
+) -> ViewReward:
+    reward = await event_repository.create(obj)
+    return reward
+
+
+@router.post(
+    "/event/add-participant",
+    responses={
+        200: {"description": "Add participant to event"},
+        **IncorrectCredentialsException.responses,
+        **NoCredentialsException.responses,
+    },
+)
+async def add_participant_to_event(
+    verification: Annotated[VerificationResult, Depends(verify_request)],
+    event_repository: Annotated[EventRepository, DEPENDS_EVENT_REPOSITORY],
+    obj: CreateEventParticipant,
+):
+    await event_repository.add_participant_to_event(obj)
     return {"success": True}
