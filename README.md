@@ -8,6 +8,8 @@
 - SQLAlchemy 2.0+ (async)
 - PostgreSQL
 - Alembic
+- fastapi-mock*
+*самописная либа для быстрых моков АПИ
 
 ### Архитектура
 
