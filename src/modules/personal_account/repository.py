@@ -31,6 +31,7 @@ from src.modules.personal_account.schemas import (
     UpdateReward,
     UpdateAchievement,
     CreatePersonalAccountAchievement,
+    ViewLeaderBoard,
 )
 
 
@@ -55,6 +56,17 @@ class PersonalAccountRepository(SQLAlchemyRepository):
             )
             await session.execute(q)
             await session.commit()
+
+    async def read_leaderboard(self) -> list[ViewLeaderBoard]:
+        async with self._create_session() as session:
+            q = text(
+                """select personal_account.total_exp, users.name, users.id from personal_account inner join users on personal_account.user_id=users.id order by personal_account.total_exp;
+"""
+            )
+            objs = await session.execute(q)
+            print(objs)
+            if objs:
+                return [ViewLeaderBoard.model_validate(obj) for obj in objs]
 
 
 class RewardRepository(SQLAlchemyRepository):

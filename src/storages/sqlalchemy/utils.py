@@ -21,6 +21,7 @@ __all__ = [
     "String",
     "association_proxy",
     "AssociationProxy",
+    "text",
 ]
 
 from sqlalchemy import ForeignKey, UniqueConstraint
@@ -32,3 +33,4 @@ from sqlalchemy import bindparam
 from sqlalchemy import DateTime
 from sqlalchemy.sql import func
 from sqlalchemy import Enum as SQLEnum, String
+from sqlalchemy import text

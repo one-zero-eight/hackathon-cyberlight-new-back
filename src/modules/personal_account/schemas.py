@@ -134,6 +134,14 @@ class BattlePassExperience(BaseModel):
     experience: int = Field(..., description="Experience of current battle pass", examples=[10, 77, 1882])
 
 
+class ViewLeaderBoard(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    total_exp: int = Field(..., description="Total exp of user")
+    name: str = Field(..., description="User name")
+    id: int = Field(..., description="User ID")
+
+
 ViewPersonalAccount.model_rebuild()
 ViewReward.model_rebuild()
 ViewBattlePass.model_rebuild()
